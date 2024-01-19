@@ -1,20 +1,19 @@
-package com.harmony.bitable.oapi
+package com.harmony.bitable.oapi.bitable
 
 import com.harmony.bitable.BitableAddress
-import com.harmony.lark.LarkApiException
-import com.harmony.lark.LarkClient
-import com.harmony.lark.ensureData
-import com.harmony.lark.model.PageCursor
-import com.harmony.lark.service.bitable.listCursor
+import com.harmony.bitable.oapi.PageCursor
+import com.harmony.bitable.oapi.ensureData
 import com.lark.oapi.Client
 import com.lark.oapi.core.request.RequestOptions
 import com.lark.oapi.service.bitable.v1.model.*
 
-class BitableRecordApi(larkClient: LarkClient, private val pageSize: Int = 20) {
+/**
+ * @author wuxin
+ */
+class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
 
-    private val appTableRecord = larkClient.unwrap(Client::bitable).appTableRecord()
+    private val appTableRecord = client.bitable().appTableRecord()
 
-    @JvmOverloads
     fun create(
         address: BitableAddress,
         record: AppTableRecord,
@@ -32,7 +31,6 @@ class BitableRecordApi(larkClient: LarkClient, private val pageSize: Int = 20) {
         return appTableRecord.create(request, options).ensureData().record
     }
 
-    @JvmOverloads
     fun batchCreate(
         address: BitableAddress,
         records: List<AppTableRecord>,
@@ -54,7 +52,6 @@ class BitableRecordApi(larkClient: LarkClient, private val pageSize: Int = 20) {
         return appTableRecord.batchCreate(request, options).ensureData().records.toList()
     }
 
-    @JvmOverloads
     fun delete(
         address: BitableAddress,
         recordId: String,
@@ -70,7 +67,6 @@ class BitableRecordApi(larkClient: LarkClient, private val pageSize: Int = 20) {
         return appTableRecord.delete(request, options).ensureData().deleted
     }
 
-    @JvmOverloads
     fun batchDelete(
         address: BitableAddress,
         recordIds: List<String>,
@@ -93,7 +89,6 @@ class BitableRecordApi(larkClient: LarkClient, private val pageSize: Int = 20) {
             .associate { it.recordId to it.deleted }
     }
 
-    @JvmOverloads
     fun update(
         address: BitableAddress,
         record: AppTableRecord,
@@ -112,7 +107,6 @@ class BitableRecordApi(larkClient: LarkClient, private val pageSize: Int = 20) {
         return appTableRecord.update(request, options).ensureData().record
     }
 
-    @JvmOverloads
     fun batchUpdate(
         address: BitableAddress,
         records: List<AppTableRecord>,
@@ -134,7 +128,6 @@ class BitableRecordApi(larkClient: LarkClient, private val pageSize: Int = 20) {
         return appTableRecord.batchUpdate(request, options).ensureData().records.toList()
     }
 
-    @JvmOverloads
     fun get(
         address: BitableAddress,
         recordId: String,
@@ -152,19 +145,10 @@ class BitableRecordApi(larkClient: LarkClient, private val pageSize: Int = 20) {
         return get(request, options)
     }
 
-    @JvmOverloads
     fun get(request: GetAppTableRecordReq, options: RequestOptions = RequestOptions()): AppTableRecord? {
-        try {
-            return appTableRecord.get(request, options).ensureData().record
-        } catch (e: LarkApiException) {
-            if (e.response.code == 1254043) {
-                return null
-            }
-            throw e
-        }
+        return appTableRecord.get(request, options).ensureData().record
     }
 
-    @JvmOverloads
     fun getFirst(
         address: BitableAddress,
         filter: String,
@@ -180,7 +164,6 @@ class BitableRecordApi(larkClient: LarkClient, private val pageSize: Int = 20) {
         return getFirst(request, options)
     }
 
-    @JvmOverloads
     fun getFirst(request: ListAppTableRecordReq, options: RequestOptions = RequestOptions()): AppTableRecord? {
         val result = getTop2(request, options)
         return if (result.isEmpty()) null else result[0]
@@ -207,7 +190,7 @@ class BitableRecordApi(larkClient: LarkClient, private val pageSize: Int = 20) {
         }
 
         if (matched.size > 1) {
-            throw DuplicateRecordException()
+            throw IllegalStateException()
         }
 
         return matched[0]
@@ -222,7 +205,6 @@ class BitableRecordApi(larkClient: LarkClient, private val pageSize: Int = 20) {
         return if (result.total == 0) emptyList() else result.items.toList()
     }
 
-    @JvmOverloads
     fun list(request: ListAppTableRecordReq, options: RequestOptions = RequestOptions()): PageCursor<AppTableRecord> {
         if (request.pageSize == null) {
             request.pageSize = pageSize
@@ -230,7 +212,6 @@ class BitableRecordApi(larkClient: LarkClient, private val pageSize: Int = 20) {
         return appTableRecord.listCursor(request, options)
     }
 
-    @JvmOverloads
     fun list(address: BitableAddress, options: RequestOptions = RequestOptions()): PageCursor<AppTableRecord> {
         val request = ListAppTableRecordReq.newBuilder()
             .appToken(address.appToken)
@@ -240,7 +221,6 @@ class BitableRecordApi(larkClient: LarkClient, private val pageSize: Int = 20) {
         return list(request, options)
     }
 
-    @JvmOverloads
     fun count(address: BitableAddress, options: RequestOptions = RequestOptions()): Int {
         val request = ListAppTableRecordReq.newBuilder()
             .appToken(address.appToken)

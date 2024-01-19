@@ -1,7 +1,7 @@
 package com.harmony.bitable.core
 
-import com.harmony.bitable.filter.RecordFilterPredicate
-import com.harmony.lark.model.PageCursor
+import com.harmony.bitable.filter.RecordFilter
+import com.harmony.bitable.oapi.PageCursor
 
 interface BitableOperations {
 
@@ -23,8 +23,8 @@ interface BitableOperations {
 
     fun <T : Any> scan(type: Class<T>): PageCursor<T>
 
-    fun <T : Any> findAll(type: Class<T>, predicate: RecordFilterPredicate): Iterable<T>
+    fun <T : Any> findAll(type: Class<T>, recordFilter: RecordFilter): Iterable<T>
 
-    fun <T : Any> scan(type: Class<T>, predicate: RecordFilterPredicate): PageCursor<T>
+    fun <T : Any> scan(type: Class<T>, recordFilter: RecordFilter): PageCursor<T>
 
 }

@@ -1,21 +1,20 @@
 package com.harmony.bitable.core
 
 import com.harmony.bitable.convert.BitableConverter
-import com.harmony.bitable.filter.RecordFilterPredicate
+import com.harmony.bitable.filter.RecordFilter
 import com.harmony.bitable.mapping.BitableMappingContext
 import com.harmony.bitable.mapping.BitablePersistentEntity
 import com.harmony.bitable.mapping.BitablePersistentProperty
 import com.harmony.bitable.oapi.*
-import com.harmony.lark.LarkException
-import com.harmony.lark.model.PageCursor
+import com.harmony.bitable.oapi.bitable.BitableRecordApi
 import com.lark.oapi.service.bitable.v1.model.AppTableRecord
 import com.lark.oapi.service.bitable.v1.model.ListAppTableRecordReq
 import org.springframework.util.ClassUtils
 
 class BitableTemplate(
-    private var recordApi: BitableRecordApi,
-    private var mappingContext: BitableMappingContext,
-    private var converter: BitableConverter,
+    private val recordApi: BitableRecordApi,
+    private val mappingContext: BitableMappingContext,
+    private val converter: BitableConverter,
 ) : BitableOperations {
 
     companion object {
@@ -73,10 +72,11 @@ class BitableTemplate(
 
         val persistentEntity = getPersistentEntity(type)
 
-        val cursor = recordApi.list(persistentEntity.getBitableAddress())
-        for (record in cursor.stream()) {
-            deleteByRecord(record, persistentEntity)
-        }
+        recordApi.list(persistentEntity.getBitableAddress())
+            .stream()
+            .forEach {
+                deleteByRecord(it, persistentEntity)
+            }
     }
 
     override fun <T : Any> delete(objectToDelete: T): T {
@@ -135,11 +135,11 @@ class BitableTemplate(
     }
 
     override fun <T : Any> findAll(type: Class<T>): Iterable<T> {
-        return scan(type).iterable()
+        return scan(type).toList()
     }
 
-    override fun <T : Any> findAll(type: Class<T>, predicate: RecordFilterPredicate): Iterable<T> {
-        return scan(type, predicate).iterable()
+    override fun <T : Any> findAll(type: Class<T>, recordFilter: RecordFilter): Iterable<T> {
+        return scan(type, recordFilter).toList()
     }
 
     override fun <T : Any> scan(type: Class<T>): PageCursor<T> {
@@ -147,15 +147,16 @@ class BitableTemplate(
         return recordApi.list(persistentEntity.getBitableAddress()).convert { convertToEntity(it, persistentEntity) }
     }
 
-    override fun <T : Any> scan(type: Class<T>, predicate: RecordFilterPredicate): PageCursor<T> {
+    override fun <T : Any> scan(type: Class<T>, recordFilter: RecordFilter): PageCursor<T> {
         val persistentEntity = getPersistentEntity(type)
         val address = persistentEntity.getBitableAddress()
         val request = ListAppTableRecordReq().apply {
-            this.pageToken = predicate.getPageToken()
-            this.viewId = predicate.getViewId()
-            this.filter = predicate.getFilter()
-            this.sort = predicate.getSort()
-            this.fieldNames = predicate.getFieldNames()
+            this.pageSize = recordFilter.getPageSize()
+            this.pageToken = recordFilter.getPageToken()
+            this.viewId = recordFilter.getViewId()
+            this.filter = recordFilter.getFilter()
+            this.sort = recordFilter.getSort()
+            this.fieldNames = recordFilter.getFieldNames()
             this.tableId = address.tableId
             this.appToken = address.appToken
         }
@@ -170,7 +171,7 @@ class BitableTemplate(
     private fun getRecordById(id: Any, persistentEntity: BitablePersistentEntity<*>): AppTableRecord {
         val idFilter = idFilter(id, persistentEntity.requiredIdProperty)
         return recordApi.getOne(persistentEntity.getBitableAddress(), idFilter)
-            ?: throw RecordNotFoundException("$id record not found")
+            ?: throw LarkException("$id record not found")
     }
 
     private fun idFilter(id: Any, property: BitablePersistentProperty): String {

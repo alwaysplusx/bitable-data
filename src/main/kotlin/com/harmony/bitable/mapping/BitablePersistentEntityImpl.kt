@@ -40,7 +40,7 @@ internal class BitablePersistentEntityImpl<T : Any>(
             return bitityField
         }
 
-        val appTableField: AppTableField = bitable.getField(bitityField.fieldName)
+        val appTableField = bitable.getField(bitityField.fieldName)
         if (appTableField.type != bitityField.fieldType.value) {
             throw IllegalStateException(
                 "${bitityField.fieldName} field type mismatch," +

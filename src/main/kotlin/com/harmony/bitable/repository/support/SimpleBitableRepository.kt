@@ -3,8 +3,11 @@ package com.harmony.bitable.repository.support
 import com.harmony.bitable.core.BitableEntityInformation
 import com.harmony.bitable.core.BitableOperations
 import com.harmony.bitable.filter.*
+import com.harmony.bitable.oapi.PageCursor
+import com.harmony.bitable.oapi.Pageable
+import com.harmony.bitable.oapi.first
+import com.harmony.bitable.oapi.firstOrNull
 import com.harmony.bitable.repository.BitableRepository
-import com.harmony.lark.model.PageCursor
 import org.springframework.data.util.Streamable
 import java.util.*
 
@@ -28,24 +31,6 @@ class SimpleBitableRepository<T : Any, ID : Any>(
 
     override fun existsById(id: ID): Boolean {
         return findById(id).isPresent
-    }
-
-    override fun scan(): PageCursor<T> = bitableOperations.scan(entityInformation.javaType)
-
-    override fun scan(predicate: RecordFilterPredicate): PageCursor<T> {
-        return bitableOperations.scan(entityInformation.javaType, predicate)
-    }
-
-    override fun filter(predicate: RecordFilterBuilder<T>.() -> Unit): PageCursor<T> {
-        val builder = RecordFilterBuilder(entityInformation.javaType)
-        predicate(builder)
-        return scan(builder.build(nameProvider))
-    }
-
-    override fun scan(predicate: PredicateBuilder<T>.() -> Unit): PageCursor<T> {
-        val builder = PredicateBuilder(entityInformation.javaType)
-        predicate(builder)
-        return scan(RecordFilterPredicate.ofFilter(builder.build(nameProvider)))
     }
 
     override fun findAll(): Iterable<T> = bitableOperations.findAll(entityInformation.javaType)
@@ -76,6 +61,38 @@ class SimpleBitableRepository<T : Any, ID : Any>(
 
     override fun findAllById(ids: Iterable<ID>): Iterable<T> {
         return Streamable.of(ids).map { findById(it).orElse(null) }.filterNotNull()
+    }
+
+    override fun scan(pageable: Pageable, closure: PredicateBuilder<T>.() -> Unit): PageCursor<T> {
+        val filter = buildRecordFilter(pageable, closure)
+        return scan(filter)
+    }
+
+    override fun scan(recordFilter: RecordFilter): PageCursor<T> {
+        return bitableOperations.scan(entityInformation.javaType, recordFilter)
+    }
+
+    override fun firstOrNull(closure: PredicateBuilder<T>.() -> Unit): T? {
+        val filter = buildRecordFilter(Pageable(1), closure)
+        return scan(filter).firstOrNull()
+    }
+
+    override fun first(closure: PredicateBuilder<T>.() -> Unit): T {
+        val filter = buildRecordFilter(Pageable(1), closure)
+        return scan(filter).first()
+    }
+
+    override fun filter(closure: RecordFilterBuilder<T>.() -> Unit): PageCursor<T> {
+        val builder = RecordFilterBuilder(entityInformation.javaType)
+        closure(builder)
+        return scan(builder.build(nameProvider))
+    }
+
+    private fun buildRecordFilter(pageable: Pageable, closure: PredicateBuilder<T>.() -> Unit): RecordFilter {
+        val builder = PredicateBuilder(entityInformation.javaType)
+        closure(builder)
+        val filter = builder.build(nameProvider)
+        return SimpleRecordFilter(filter = filter, pageable = pageable)
     }
 
 }
