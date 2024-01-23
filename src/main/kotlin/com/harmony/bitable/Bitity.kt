@@ -7,12 +7,24 @@ import org.springframework.data.mapping.model.Property
  */
 interface Bitity<T : Any> : Iterable<BitityField> {
 
+    /**
+     * 实体名称(bitable name or class simpleName)
+     */
     fun getName(): String
 
+    /**
+     * 实体类
+     */
     fun getType(): Class<T>
 
-    fun getField(property: Property): BitityField?
+    /**
+     * 实体所拥有的字段
+     */
+    fun getFields(): List<BitityField>
 
-    fun getField(predicate: (BitityField) -> Boolean): BitityField?
+    /**
+     * 依据 property 获取实体
+     */
+    fun getField(property: Property): BitityField?
 
 }

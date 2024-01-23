@@ -1,4 +1,4 @@
-package com.harmony.bitable.filter.querydsl
+package com.harmony.bitable.filter.dsl
 
 import com.querydsl.core.types.Ops
 import com.querydsl.core.types.PathType

@@ -1,7 +1,7 @@
 package com.harmony.bitable.mapping
 
-import com.harmony.bitable.BitityService
-import com.harmony.bitable.core.BitableSource
+import com.harmony.bitable.BititySource
+import com.harmony.bitable.BitableSource
 import org.springframework.data.mapping.context.AbstractMappingContext
 import org.springframework.data.mapping.model.Property
 import org.springframework.data.mapping.model.SimpleTypeHolder
@@ -9,7 +9,7 @@ import org.springframework.data.util.TypeInformation
 
 internal class BitableMappingContextImpl(
     private val bitableSource: BitableSource,
-    private val bitityService: BitityService,
+    private val bititySource: BititySource,
 ) : AbstractMappingContext<BitablePersistentEntity<*>, BitablePersistentProperty>(),
     BitableMappingContext {
 
@@ -17,10 +17,14 @@ internal class BitableMappingContextImpl(
         this.setSimpleTypeHolder(BITABLE_SIMPLE_TYPE_HOLDER)
     }
 
+    companion object {
+        private val BITABLE_SIMPLE_TYPE_HOLDER = BitableSimpleTypeHolder()
+    }
+
     override fun <T : Any> createPersistentEntity(typeInformation: TypeInformation<T>): BitablePersistentEntity<*> {
-        val bitity = bitityService.getBitity(typeInformation.type)
-        val table = bitableSource.getTable(bitity.getName())
-        return BitablePersistentEntityImpl(typeInformation, table, bitity)
+        val bitity = bititySource.getBitity(typeInformation.type)
+        val bitable = bitableSource.getBitable(bitity.getName())
+        return BitablePersistentEntityImpl(typeInformation, bitable, bitity)
     }
 
     override fun createPersistentProperty(
@@ -29,14 +33,10 @@ internal class BitableMappingContextImpl(
         simpleTypeHolder: SimpleTypeHolder,
     ) = BitablePersistentPropertyImpl(property, owner, simpleTypeHolder)
 
-    companion object {
-        private val BITABLE_SIMPLE_TYPE_HOLDER = BitableSimpleTypeHolder()
-    }
-
     private class BitableSimpleTypeHolder : SimpleTypeHolder(emptySet(), true) {
 
         override fun isSimpleType(type: Class<*>): Boolean {
-            if (type.name.startsWith("com.lark.oapi.service.bitable.v1.model")) {
+            if (type.name.startsWith("com.lark.oapi")) {
                 return true
             }
             return super.isSimpleType(type)

@@ -1,6 +1,5 @@
-package com.harmony.bitable.filter.querydsl
+package com.harmony.bitable.filter.dsl
 
-import com.harmony.bitable.filter.NameProvider
 import com.querydsl.core.support.SerializerBase
 import com.querydsl.core.types.Path
 import com.querydsl.core.types.PathType

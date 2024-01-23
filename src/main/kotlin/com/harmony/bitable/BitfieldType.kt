@@ -1,11 +1,8 @@
 package com.harmony.bitable
 
-import com.lark.oapi.service.bitable.v1.model.Attachment
 import com.lark.oapi.service.bitable.v1.model.Location
 import com.lark.oapi.service.bitable.v1.model.Person
 import com.lark.oapi.service.bitable.v1.model.Url
-
-import java.time.LocalDateTime
 
 /**
  * [飞书多维表格的字段类型](https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/reference/bitable-v1/app-table-field/guide)
@@ -14,7 +11,10 @@ import java.time.LocalDateTime
  */
 enum class BitfieldType(val value: Int, val type: Class<*>) {
 
-    NONE(0, Void::class.java),
+    /**
+     * 自动识别类型
+     */
+    AUTO(0, Void::class.java),
 
     TEXT(1, String::class.java),
 
@@ -24,7 +24,7 @@ enum class BitfieldType(val value: Int, val type: Class<*>) {
 
     MULTI_SELECT(4, Array<String>::class.java),
 
-    DATE_TIME(5, LocalDateTime::class.java),
+    DATE_TIME(5, Long::class.java),
 
     CHECKBOX(7, Boolean::class.java),
 
@@ -32,7 +32,7 @@ enum class BitfieldType(val value: Int, val type: Class<*>) {
 
     URL(15, Url::class.java),
 
-    ATTACHMENT(17, Attachment::class.java),
+    ATTACHMENT(17, List::class.java),
 
     ASSOCIATION(18, String::class.java),
 

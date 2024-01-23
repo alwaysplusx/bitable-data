@@ -11,22 +11,10 @@ data class Bitable(
     val fields: List<AppTableFieldForList>,
 ) {
 
-    private val fieldCache: Map<String, Int>
-
-    init {
-        this.fieldCache = mutableMapOf()
-        fields.forEachIndexed { index, field ->
-            fieldCache[field.fieldName] = index
-        }
-    }
-
-    fun getField(index: Int): AppTableFieldForList {
-        return fields[index]
-    }
+    private val fieldCache: Map<String, AppTableFieldForList> = fields.associateBy { it.fieldName }
 
     fun getField(name: String): AppTableFieldForList {
-        val index = fieldCache[name] ?: throw IllegalArgumentException("$name field not found in table ${this.name}")
-        return getField(index)
+        return fieldCache[name] ?: throw IllegalArgumentException("$name field not found in table ${this.name}")
     }
 
 }

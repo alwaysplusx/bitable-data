@@ -7,7 +7,7 @@ import org.springframework.data.repository.config.RepositoryConfigurationExtensi
 class BitableRepositoryConfigurationExtension : RepositoryConfigurationExtensionSupport() {
 
     override fun getModulePrefix(): String {
-        return "Bitable"
+        return "bitable"
     }
 
     override fun getRepositoryFactoryBeanClassName(): String {

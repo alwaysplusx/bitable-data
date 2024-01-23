@@ -3,9 +3,14 @@ package com.harmony.bitable.core
 import com.harmony.bitable.filter.RecordFilter
 import com.harmony.bitable.oapi.PageCursor
 
+/**
+ * 支持 bitable 数据的操作
+ */
 interface BitableOperations {
 
     fun <T : Any> insert(objectToInsert: T): T
+
+    fun <T : Any> insertBatch(type: Class<T>, objectsToInsert: Iterable<T>): Iterable<T>
 
     fun <T : Any> update(objectToUpdate: T): T
 

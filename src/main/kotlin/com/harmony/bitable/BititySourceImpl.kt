@@ -4,18 +4,25 @@ import com.harmony.bitable.annotations.BitId
 import com.harmony.bitable.annotations.Bitable
 import com.harmony.bitable.annotations.Bitfield
 import com.harmony.bitable.utils.BitityUtils
+import com.harmony.bitable.utils.BitityUtils.getBitfieldType
 import com.harmony.bitable.utils.BitityUtils.getPropertyAnnotations
-import com.harmony.bitable.utils.BitityUtils.getTypeBitfieldType
 import org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation
 import org.springframework.data.mapping.model.Property
 import org.springframework.util.ClassUtils
 
-internal class DefaultBitityService : BitityService {
+internal class BititySourceImpl : BititySource {
 
     private val bitityCache = mutableMapOf<Class<*>, Bitity<*>>()
 
     override fun <T : Any> getBitity(type: Class<T>): Bitity<T> {
+        if (!isBitity(type)) {
+            throw IllegalStateException("$type is not bitity")
+        }
         return bitityCache.computeIfAbsent(type) { buildBitity(it) } as Bitity<T>
+    }
+
+    private fun isBitity(type: Class<*>): Boolean {
+        return findMergedAnnotation(type, Bitable::class.java) != null
     }
 
     private fun <T : Any> buildBitity(type: Class<T>): Bitity<T> {
@@ -46,10 +53,10 @@ internal class DefaultBitityService : BitityService {
     }
 
     private fun getFieldType(bitfield: Bitfield?, property: Property): BitfieldType {
-        if (bitfield != null && bitfield.type != BitfieldType.NONE) {
+        if (bitfield != null && bitfield.type != BitfieldType.AUTO) {
             return bitfield.type
         }
-        return getTypeBitfieldType(property.type)
+        return getBitfieldType(property.type)
             ?: throw IllegalStateException("${property.type.simpleName} not have default bitfield type")
     }
 
@@ -71,11 +78,9 @@ internal class DefaultBitityService : BitityService {
 
         override fun getType() = type
 
-        override fun getField(property: Property) = fieldCache[property]
+        override fun getFields(): List<BitityField> = fields
 
-        override fun getField(predicate: (BitityField) -> Boolean): BitityField? {
-            return fieldCache.values.firstOrNull(predicate)
-        }
+        override fun getField(property: Property) = fieldCache[property]
 
         override fun iterator(): Iterator<BitityField> = fields.iterator()
 

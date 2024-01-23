@@ -1,4 +1,4 @@
-package com.harmony.bitable.filter
+package com.harmony.bitable.filter.dsl
 
 import com.harmony.bitable.utils.NameFunctionUtils.getNameInformation
 import org.springframework.data.mapping.model.Property
@@ -8,13 +8,12 @@ import kotlin.reflect.KMutableProperty1
  * @param R name type
  */
 class NameInformation<R>(
-    val owner: Class<*>,
+    private val owner: Class<*>,
     val property: Property,
 ) {
 
     companion object {
 
-        @JvmStatic
         fun <T, R> from(nameFunction: KMutableProperty1<T, R>) = getNameInformation(nameFunction)
 
     }

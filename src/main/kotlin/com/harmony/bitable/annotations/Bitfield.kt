@@ -26,5 +26,5 @@ annotation class Bitfield(
      *
      * @see BitfieldType
      */
-    val type: BitfieldType = BitfieldType.NONE,
+    val type: BitfieldType = BitfieldType.AUTO,
 )

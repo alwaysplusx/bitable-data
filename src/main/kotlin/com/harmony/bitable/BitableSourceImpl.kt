@@ -1,4 +1,4 @@
-package com.harmony.bitable.core
+package com.harmony.bitable
 
 import com.harmony.bitable.oapi.bitable.BitableApi
 
@@ -8,6 +8,6 @@ class BitableSourceImpl(
     private val bitableApi: BitableApi,
 ) : BitableSource {
 
-    override fun getTable(name: String) = bitableApi.getBitable(appToken, name)
+    override fun getBitable(name: String) = bitableApi.getBitable(appToken, name)
 
 }

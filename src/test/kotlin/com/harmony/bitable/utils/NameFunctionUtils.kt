@@ -1,7 +1,7 @@
 package com.harmony.bitable.utils
 
-import com.harmony.bitable.filter.NameFunction
-import com.harmony.bitable.filter.NameInformation
+import com.harmony.bitable.filter.dsl.NameFunction
+import com.harmony.bitable.filter.dsl.NameInformation
 import org.springframework.data.mapping.model.Property
 import org.springframework.util.ReflectionUtils.invokeMethod
 import org.springframework.util.ReflectionUtils.makeAccessible
@@ -15,7 +15,6 @@ object NameFunctionUtils {
 
     private val typePropertiesMap: MutableMap<Class<*>, List<Property>> = mutableMapOf()
 
-    @JvmStatic
     fun <T, R> getNameInformation(nameFunction: NameFunction<T, R>): NameInformation<R> {
         val method = nameFunction::class.java.getDeclaredMethod("writeReplace")
         val info = with(method) {

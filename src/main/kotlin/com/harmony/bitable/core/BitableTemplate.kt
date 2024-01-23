@@ -11,24 +11,34 @@ import com.lark.oapi.service.bitable.v1.model.AppTableRecord
 import com.lark.oapi.service.bitable.v1.model.ListAppTableRecordReq
 import org.springframework.util.ClassUtils
 
+/**
+ * 支持多维表格行数据操作
+ * @see BitableOperations
+ */
 class BitableTemplate(
-    private val recordApi: BitableRecordApi,
-    private val mappingContext: BitableMappingContext,
-    private val converter: BitableConverter,
+    private val bitableRecordApi: BitableRecordApi,
+    private val bitableMappingContext: BitableMappingContext,
+    private val bitableConverter: BitableConverter,
 ) : BitableOperations {
-
-    companion object {
-        const val ID_FILTER = "CurrentValue.[%s]=%s"
-    }
 
     override fun <T : Any> insert(objectToInsert: T): T {
         val persistentEntity = getPersistentEntity(objectToInsert)
 
         val record = convertToRecord(objectToInsert)
 
-        val insertedRecord = recordApi.create(persistentEntity.getBitableAddress(), record)
+        val insertedRecord = bitableRecordApi.create(persistentEntity.getBitableAddress(), record)
 
         return convertToEntity(insertedRecord, persistentEntity)
+    }
+
+    override fun <T : Any> insertBatch(type: Class<T>, objectsToInsert: Iterable<T>): Iterable<T> {
+        val persistentEntity = getPersistentEntity(type)
+
+        val records = objectsToInsert.map { convertToRecord(it) }
+
+        val address = persistentEntity.getBitableAddress()
+
+        return bitableRecordApi.batchCreate(address, records).map { convertToEntity(it, persistentEntity) }.toList()
     }
 
     override fun <T : Any> update(objectToUpdate: T): T {
@@ -64,15 +74,14 @@ class BitableTemplate(
             this.recordId = recordId
         }
 
-        val updatedRecord = recordApi.update(persistentEntity.getBitableAddress(), record)
+        val updatedRecord = bitableRecordApi.update(persistentEntity.getBitableAddress(), record)
         return convertToEntity(updatedRecord, persistentEntity)
     }
 
     override fun delete(type: Class<*>) {
-
         val persistentEntity = getPersistentEntity(type)
 
-        recordApi.list(persistentEntity.getBitableAddress())
+        bitableRecordApi.list(persistentEntity.getBitableAddress())
             .stream()
             .forEach {
                 deleteByRecord(it, persistentEntity)
@@ -107,7 +116,7 @@ class BitableTemplate(
 
     private fun <T : Any> deleteByRecordId(recordId: String, persistentEntity: BitablePersistentEntity<T>): T {
 
-        val record = recordApi.get(persistentEntity.getBitableAddress(), recordId)
+        val record = bitableRecordApi.get(persistentEntity.getBitableAddress(), recordId)
             ?: throw LarkException("$recordId record not found")
 
         return deleteByRecord(record, persistentEntity)
@@ -115,12 +124,12 @@ class BitableTemplate(
 
     private fun <T : Any> deleteByRecord(record: AppTableRecord, persistentEntity: BitablePersistentEntity<T>): T {
 
-        recordApi.delete(persistentEntity.getBitableAddress(), record.recordId)
+        bitableRecordApi.delete(persistentEntity.getBitableAddress(), record.recordId)
 
         return convertToEntity(record, persistentEntity)
     }
 
-    override fun count(type: Class<*>) = recordApi.count(getPersistentEntity(type).getBitableAddress()).toLong()
+    override fun count(type: Class<*>) = bitableRecordApi.count(getPersistentEntity(type).getBitableAddress()).toLong()
 
     override fun <T : Any> findById(id: Any, type: Class<T>): T? {
 
@@ -144,58 +153,71 @@ class BitableTemplate(
 
     override fun <T : Any> scan(type: Class<T>): PageCursor<T> {
         val persistentEntity = getPersistentEntity(type)
-        return recordApi.list(persistentEntity.getBitableAddress()).convert { convertToEntity(it, persistentEntity) }
+        return bitableRecordApi.list(persistentEntity.getBitableAddress())
+            .convert { convertToEntity(it, persistentEntity) }
     }
 
     override fun <T : Any> scan(type: Class<T>, recordFilter: RecordFilter): PageCursor<T> {
         val persistentEntity = getPersistentEntity(type)
         val address = persistentEntity.getBitableAddress()
-        val request = ListAppTableRecordReq().apply {
-            this.pageSize = recordFilter.getPageSize()
-            this.pageToken = recordFilter.getPageToken()
-            this.viewId = recordFilter.getViewId()
-            this.filter = recordFilter.getFilter()
-            this.sort = recordFilter.getSort()
-            this.fieldNames = recordFilter.getFieldNames()
-            this.tableId = address.tableId
-            this.appToken = address.appToken
-        }
-        return recordApi.list(request).convert { convertToEntity(it, persistentEntity) }
+        val request = ListAppTableRecordReq.newBuilder()
+            .appToken(address.appToken)
+            .tableId(address.tableId)
+            .pageSize(recordFilter.getPageSize())
+            .pageToken(recordFilter.getPageToken())
+            .viewId(recordFilter.getViewId())
+            .filter(recordFilter.getFilter())
+            .sort(recordFilter.getSort())
+            .fieldNames(recordFilter.getFieldNames())
+            .build()
+        return bitableRecordApi.list(request).convert { convertToEntity(it, persistentEntity) }
     }
 
     private fun <T : Any> findByRecordId(recordId: String, persistentEntity: BitablePersistentEntity<T>): T? {
-        val record = recordApi.get(persistentEntity.getBitableAddress(), recordId) ?: return null
+        val record = bitableRecordApi.get(persistentEntity.getBitableAddress(), recordId) ?: return null
         return convertToEntity(record, persistentEntity)
     }
 
+    /**
+     * 通过自定义的 ID 字段获取飞书多维表格中的 [RecordId](https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/bitable/notification#15d8db94) 字段值
+     */
     private fun getRecordById(id: Any, persistentEntity: BitablePersistentEntity<*>): AppTableRecord {
         val idFilter = idFilter(id, persistentEntity.requiredIdProperty)
-        return recordApi.getOne(persistentEntity.getBitableAddress(), idFilter)
+        return bitableRecordApi.getOne(persistentEntity.getBitableAddress(), idFilter)
             ?: throw LarkException("$id record not found")
     }
 
+    /**
+     * 通过自定义Id 构建筛选器 [filter](https://open.feishu.cn/document/server-docs/docs/bitable-v1/app-table-record/filter)
+     */
     private fun idFilter(id: Any, property: BitablePersistentProperty): String {
         val idValue = (id as? Number)?.toString() ?: "\"$id\""
-        return String.format(ID_FILTER, property.getBitfieldName(), idValue)
+        return String.format("CurrentValue.[%s]=%s", property.getBitfieldName(), idValue)
     }
 
     private fun <R> getPersistentEntity(cls: Class<R>): BitablePersistentEntity<R> {
-        return mappingContext.getPersistentEntity(cls) as BitablePersistentEntity<R>
+        return bitableMappingContext.getPersistentEntity(cls) as BitablePersistentEntity<R>
     }
 
     private fun <R> getPersistentEntity(obj: R): BitablePersistentEntity<R> {
         val entityType = if (obj is Class<*>) obj else ClassUtils.getUserClass(obj as Any)
-        return mappingContext.getPersistentEntity(entityType) as BitablePersistentEntity<R>
+        return bitableMappingContext.getPersistentEntity(entityType) as BitablePersistentEntity<R>
     }
 
+    /**
+     * 将实体数据转化为多维表格的 record
+     */
     private fun <R> convertToRecord(obj: R): AppTableRecord {
         val record = AppTableRecord()
-        converter.write(obj as Any, record)
+        bitableConverter.write(obj as Any, record)
         return record
     }
 
+    /**
+     * 将多维表格的 record 转化为实体数据
+     */
     private fun <R> convertToEntity(record: AppTableRecord, persistentEntity: BitablePersistentEntity<R>): R {
-        return converter.read(persistentEntity.type, record)
+        return bitableConverter.read(persistentEntity.type, record)
     }
 
 }

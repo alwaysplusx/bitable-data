@@ -3,7 +3,6 @@ package com.harmony.bitable.mapping
 import com.harmony.bitable.Bitity
 import com.harmony.bitable.BitityField
 import com.harmony.bitable.Bitable
-import com.lark.oapi.service.bitable.v1.model.AppTableField
 import org.springframework.data.mapping.MappingException
 import org.springframework.data.mapping.model.BasicPersistentEntity
 import org.springframework.data.mapping.model.Property
@@ -33,7 +32,7 @@ internal class BitablePersistentEntityImpl<T : Any>(
 
     override fun getRecordIdProperty() = recordIdProperty
 
-    override fun getBitableField(property: Property): BitityField? {
+    override fun getField(property: Property): BitityField? {
         val bitityField: BitityField = bitity.getField(property) ?: return null
 
         if (bitityField.isRecordIdField) {
@@ -56,7 +55,7 @@ internal class BitablePersistentEntityImpl<T : Any>(
         if (persistentProperty != null) {
             return persistentProperty
         }
-        val mappedName = fieldNameMapping.get(name) ?: return null
+        val mappedName = fieldNameMapping[name] ?: return null
         return super<BasicPersistentEntity>.getPersistentProperty(mappedName)
     }
 

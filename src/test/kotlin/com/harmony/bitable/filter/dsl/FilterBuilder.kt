@@ -1,7 +1,6 @@
-package com.harmony.bitable.filter
+package com.harmony.bitable.filter.dsl
 
-import com.harmony.bitable.BitityService
-import com.harmony.bitable.filter.querydsl.FilterSerializer
+import com.harmony.bitable.BititySourceImpl
 import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.Predicate
 
@@ -9,10 +8,10 @@ class FilterBuilder<T : Any>(private val rootType: Class<T>) {
 
     companion object {
 
-        private val defaultBitityService = BitityService.defaultBitityService()
+        private val globalBititySource = BititySourceImpl()
 
         fun buildNameProvider(rootType: Class<*>): NameProvider {
-            val bitity = defaultBitityService.getBitity(rootType)
+            val bitity = globalBititySource.getBitity(rootType)
             return FieldNameProvider(bitity)
         }
 
@@ -79,7 +78,6 @@ class FilterBuilder<T : Any>(private val rootType: Class<T>) {
         return addPredicate(predicate)
     }
 
-    @JvmOverloads
     fun build(nameProvider: NameProvider = buildNameProvider(rootType)): String {
         val filterSerializer = FilterSerializer(nameProvider)
         predicate.accept(filterSerializer, null)

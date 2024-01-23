@@ -24,8 +24,6 @@ class MappingBitableConverter(
 
         private val log = LoggerFactory.getLogger(MappingBitableConverter::class.java)
 
-        const val DEFAULT_CONVERSION_SERVICE = "bitableConversionService"
-
         private val NoOpParameterValueProvider = object : ParameterValueProvider<BitablePersistentProperty> {
 
             override fun <T : Any?> getParameterValue(parameter: Parameter<T, BitablePersistentProperty>) = null
@@ -99,7 +97,17 @@ class MappingBitableConverter(
         instanceAccessor: PersistentPropertyAccessor<Any>,
     ): Any? {
         val propertyValue = instanceAccessor.getProperty(property) ?: return null
-        return conversionService.convert(propertyValue, property.getBitfieldType().type)
+        val resultValue = conversionService.convert(propertyValue, property.getBitfieldType().type)
+        log.debug(
+            "Get and convert property value of {}({})\ntype: {} -> {}\nvalue: {} -> {}",
+            property.getBitfieldName(),
+            property.name,
+            property.type.name,
+            property.getBitfieldType().type.name,
+            propertyValue,
+            resultValue
+        )
+        return resultValue
     }
 
     private fun readPropertyValue(property: BitablePersistentProperty, values: Map<String, Any>): Any? {

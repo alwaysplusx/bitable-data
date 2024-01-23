@@ -1,4 +1,4 @@
-package com.harmony.bitable.filter
+package com.harmony.bitable.filter.dsl
 
 import com.harmony.bitable.Bitity
 import com.harmony.bitable.BitityField

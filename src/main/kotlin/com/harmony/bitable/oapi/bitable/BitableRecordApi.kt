@@ -8,12 +8,16 @@ import com.lark.oapi.core.request.RequestOptions
 import com.lark.oapi.service.bitable.v1.model.*
 
 /**
+ * 多维表格行数据管理(增删改查)
  * @author wuxin
  */
 class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
 
     private val appTableRecord = client.bitable().appTableRecord()
 
+    /**
+     * 插入飞书表格行数据
+     */
     fun create(
         address: BitableAddress,
         record: AppTableRecord,
@@ -31,6 +35,9 @@ class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
         return appTableRecord.create(request, options).ensureData().record
     }
 
+    /**
+     * 批量插入飞书多维表格数据
+     */
     fun batchCreate(
         address: BitableAddress,
         records: List<AppTableRecord>,
@@ -52,6 +59,9 @@ class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
         return appTableRecord.batchCreate(request, options).ensureData().records.toList()
     }
 
+    /**
+     * 依据 recordId 删除飞书多维表格行数据
+     */
     fun delete(
         address: BitableAddress,
         recordId: String,
@@ -67,6 +77,9 @@ class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
         return appTableRecord.delete(request, options).ensureData().deleted
     }
 
+    /**
+     *  依据 recordId 批量删除飞书多维表格行数据
+     */
     fun batchDelete(
         address: BitableAddress,
         recordIds: List<String>,
@@ -89,13 +102,16 @@ class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
             .associate { it.recordId to it.deleted }
     }
 
+    /**
+     * 更新多维表格数据
+     */
     fun update(
         address: BitableAddress,
         record: AppTableRecord,
         userIdType: String? = null,
         options: RequestOptions = RequestOptions(),
     ): AppTableRecord {
-
+        requireNotNull(record.recordId) { "recordId not allow null" }
         val request = UpdateAppTableRecordReq.newBuilder()
             .recordId(record.recordId)
             .appToken(address.appToken)

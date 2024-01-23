@@ -10,20 +10,19 @@ internal class BitablePersistentPropertyImpl(
     property: Property,
     owner: BitablePersistentEntity<*>,
     simpleTypeHolder: SimpleTypeHolder,
-) :
-    AnnotationBasedPersistentProperty<BitablePersistentProperty>(property, owner, simpleTypeHolder),
+) : AnnotationBasedPersistentProperty<BitablePersistentProperty>(property, owner, simpleTypeHolder),
     BitablePersistentProperty {
 
-    private val bitableField = owner.getRequiredBitableField(property)
+    private val field = owner.getRequiredField(property)
 
     override fun createAssociation() = Association(this, null)
 
-    override fun getBitfieldId(): String? = bitableField.fieldId
+    override fun getBitfieldId(): String? = field.fieldId
 
-    override fun getBitfieldName(): String = bitableField.fieldName
+    override fun getBitfieldName(): String = field.fieldName
 
-    override fun getBitfieldType(): BitfieldType = bitableField.fieldType
+    override fun getBitfieldType(): BitfieldType = field.fieldType
 
-    override fun isRecordIdProperty(): Boolean = bitableField.isRecordIdField
+    override fun isRecordIdProperty(): Boolean = field.isRecordIdField
 
 }

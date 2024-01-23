@@ -5,10 +5,11 @@ import com.harmony.bitable.oapi.Pageable
 
 /**
  * @author wuxin
+ * @see com.lark.oapi.service.bitable.v1.model.ListAppTableRecordReq
  */
 class SimpleRecordFilter(
     private val filter: String? = null,
-    val pageable: Pageable = Pageable(),
+    private val pageable: Pageable = Pageable(),
     private val fieldNames: String? = null,
     private val viewId: String? = null,
     private val sort: String? = null,

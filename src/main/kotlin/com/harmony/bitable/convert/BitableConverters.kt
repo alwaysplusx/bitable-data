@@ -1,7 +1,6 @@
 package com.harmony.bitable.convert
 
 import com.google.gson.JsonElement
-import com.harmony.bitable.model.Option
 import com.lark.oapi.core.utils.Jsons
 import com.lark.oapi.service.bitable.v1.model.Attachment
 import com.lark.oapi.service.bitable.v1.model.Person
@@ -11,6 +10,7 @@ import org.springframework.core.convert.converter.Converter
 import org.springframework.core.convert.support.DefaultConversionService
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 import java.util.*
 
@@ -19,12 +19,12 @@ object BitableConverters {
     fun defaultConversionService(): ConversionService {
         val conversionService = DefaultConversionService()
         conversionService.addConverter(DoubleToLocalDateTime())
+        conversionService.addConverter(LocalDateTimeToLong())
         conversionService.addConverter(DoubleToLocalDate())
+        conversionService.addConverter(LocalDateToLong())
         conversionService.addConverter(MapToAttachment())
         conversionService.addConverter(MapToUser())
         conversionService.addConverter(MapToUrl())
-        conversionService.addConverter(OptionToString())
-        conversionService.addConverter(OptionArrayToStringArray())
         return conversionService
     }
 
@@ -39,9 +39,24 @@ object BitableConverters {
         }
     }
 
+    private class LocalDateTimeToLong : Converter<LocalDateTime, Long> {
+        override fun convert(source: LocalDateTime): Long {
+            return source.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        }
+    }
+
     private class DoubleToLocalDate : Converter<Double, LocalDate> {
         override fun convert(source: Double): LocalDate {
             return Date(source.toLong()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+        }
+    }
+
+    private class LocalDateToLong : Converter<LocalDate, Long> {
+        override fun convert(source: LocalDate): Long {
+            return LocalDate.now().atTime(LocalTime.MIN)
+                .atZone(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli()
         }
     }
 
@@ -61,16 +76,6 @@ object BitableConverters {
         override fun convert(source: Map<String, Any>): Attachment? {
             return convert(source, Attachment::class.java)
         }
-    }
-
-    private class OptionToString : Converter<Option, String> {
-        override fun convert(source: Option) = source.getText()
-
-    }
-
-    private class OptionArrayToStringArray : Converter<Array<Option>, Array<String>> {
-        override fun convert(source: Array<Option>) = source.map { it.getText() }.toTypedArray()
-
     }
 
 }

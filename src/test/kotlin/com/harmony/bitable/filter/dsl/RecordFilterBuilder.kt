@@ -1,14 +1,17 @@
-package com.harmony.bitable.filter
+package com.harmony.bitable.filter.dsl
 
-import com.harmony.bitable.filter.Criteria.Companion.AND
-import com.harmony.bitable.filter.Criteria.Companion.OR
-import com.harmony.bitable.filter.Criteria.Companion.buildFromSource
-import com.harmony.bitable.filter.querydsl.FilterSerializer
+import com.harmony.bitable.filter.*
+import com.harmony.bitable.filter.dsl.Criteria.Companion.AND
+import com.harmony.bitable.filter.dsl.Criteria.Companion.OR
+import com.harmony.bitable.filter.dsl.Criteria.Companion.buildFromSource
 import com.querydsl.core.types.Predicate
 import com.querydsl.kotlin.and
 import com.querydsl.kotlin.or
 import kotlin.reflect.KMutableProperty1
 
+/**
+ * filter dsl
+ */
 class RecordFilterBuilder<T : Any>(private val rootType: Class<T>) {
 
     private val root: BitfieldPathBuilder<T> = BitfieldPathBuilder(rootType, rootType.simpleName)
