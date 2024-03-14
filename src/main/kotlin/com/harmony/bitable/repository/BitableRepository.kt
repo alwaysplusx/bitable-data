@@ -9,6 +9,8 @@ import org.springframework.data.repository.NoRepositoryBean
 @NoRepositoryBean
 interface BitableRepository<T : Any, ID> : CrudRepository<T, ID> {
 
+    fun update(entity: T): T
+
     fun scan(recordFilter: RecordFilter = SimpleRecordFilter()): PageCursor<T>
 
 }

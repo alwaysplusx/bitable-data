@@ -19,6 +19,10 @@ class SimpleBitableRepository<T : Any, ID : Any>(
         return bitableOperations.insertBatch(entityInformation.javaType as Class<S>, entities)
     }
 
+    override fun update(entity: T): T {
+        return bitableOperations.update(entity)
+    }
+
     override fun findById(id: ID): Optional<T> {
         val entity = bitableOperations.findById(id, entityInformation.javaType) ?: return Optional.empty()
         return Optional.of(entity)
