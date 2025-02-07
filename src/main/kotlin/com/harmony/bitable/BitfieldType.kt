@@ -38,9 +38,9 @@ enum class BitfieldType(val value: Int, val type: Class<*>) {
 
     FORMULA(20, String::class.java),
 
-    CREATED_AT(1001, Double::class.java),
+    CREATED_AT(1001, Long::class.java),
 
-    UPDATED_AT(1002, Double::class.java),
+    UPDATED_AT(1002, Long::class.java),
 
     CREATED_BY(1003, Person::class.java),
 

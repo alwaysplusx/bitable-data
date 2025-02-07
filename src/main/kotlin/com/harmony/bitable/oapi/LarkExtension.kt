@@ -47,7 +47,7 @@ fun <T, R> PageSlice<T>.convert(converter: (T) -> R): PageSlice<R> {
 
 fun <T> BaseResponse<T>.ensureOk() {
     if (!this.success()) {
-        throw LarkException("lark response not success, reason $msg")
+        throw LarkException("lark response not success, for reason $msg. error details $error")
     }
 }
 

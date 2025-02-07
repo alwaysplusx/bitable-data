@@ -13,14 +13,12 @@ class SimpleBitableRepository<T : Any, ID : Any>(
     private val bitableOperations: BitableOperations,
 ) : BitableRepository<T, ID> {
 
+    override fun <S : T> update(entity: S) = bitableOperations.update(entity)
+
     override fun <S : T> save(entity: S) = bitableOperations.insert(entity)
 
     override fun <S : T> saveAll(entities: Iterable<S>): Iterable<S> {
         return bitableOperations.insertBatch(entityInformation.javaType as Class<S>, entities)
-    }
-
-    override fun update(entity: T): T {
-        return bitableOperations.update(entity)
     }
 
     override fun findById(id: ID): Optional<T> {

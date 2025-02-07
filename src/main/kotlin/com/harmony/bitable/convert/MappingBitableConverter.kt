@@ -41,7 +41,6 @@ class MappingBitableConverter(
 
     override fun <R : Any> read(type: Class<R>, source: AppTableRecord): R {
         val persistentEntity = mappingContext.getRequiredPersistentEntity(type)
-
         val instanceAccessor = createInstanceForAccessor(persistentEntity)
 
         val recordIdProperty = persistentEntity.getRecordIdProperty()
@@ -50,13 +49,7 @@ class MappingBitableConverter(
         }
 
         for (property in persistentEntity) {
-
-            val fieldValue = if (property.isRecordIdProperty()) {
-                source.recordId
-            } else {
-                readPropertyValue(property, source.fields)
-            }
-
+            val fieldValue = readPersistentEntityPropertyValue(property, source)
             instanceAccessor.setProperty(property, fieldValue)
         }
 
@@ -110,14 +103,12 @@ class MappingBitableConverter(
         return resultValue
     }
 
-    private fun readPropertyValue(property: BitablePersistentProperty, values: Map<String, Any>): Any? {
-        val value = values[property.getBitfieldName()] ?: return null
-
-        if (property.type.isAssignableFrom(value.javaClass)) {
-            return value
+    private fun readPersistentEntityPropertyValue(property: BitablePersistentProperty, record: AppTableRecord): Any? {
+        if (property.isRecordIdProperty()) {
+            return record.recordId
         }
-
-        return conversionService.convert(value, property.type)
+        val propertyValue = record.fields[property.getBitfieldName()] ?: return null
+        return conversionService.convert(propertyValue, TypeDescriptor(property.requiredField))
     }
 
     private fun <R> createInstanceForAccessor(persistentEntity: BitablePersistentEntity<R>): PersistentPropertyAccessor<R> {
