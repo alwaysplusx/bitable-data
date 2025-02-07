@@ -31,7 +31,7 @@ object PageUtils {
         private var nextToken: String? = pageToken
 
         override fun hasNext(): Boolean {
-            return hasNext || nextToken.isNullOrBlank()
+            return hasNext
         }
 
         override fun next(): PageSlice<T> {
