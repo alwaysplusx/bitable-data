@@ -18,7 +18,9 @@ class SimpleBitableRepository<T : Any, ID : Any>(
     override fun <S : T> save(entity: S) = bitableOperations.insert(entity)
 
     override fun <S : T> saveAll(entities: Iterable<S>): Iterable<S> {
-        return bitableOperations.insertBatch(entityInformation.javaType as Class<S>, entities)
+        return entities.chunked(1000).flatMap {
+            bitableOperations.insertBatch(entityInformation.javaType as Class<S>, it)
+        }
     }
 
     override fun findById(id: ID): Optional<T> {

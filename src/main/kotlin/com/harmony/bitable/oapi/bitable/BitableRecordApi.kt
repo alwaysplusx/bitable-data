@@ -13,7 +13,7 @@ import com.lark.oapi.service.bitable.v1.model.*
  */
 class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
 
-    private val appTableRecord = client.bitable().appTableRecord()
+    private val appTableRecordClient = client.bitable().appTableRecord()
 
     /**
      * 插入飞书表格行数据
@@ -32,7 +32,7 @@ class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
             .appTableRecord(record)
             .build()
 
-        return appTableRecord.create(request, options).ensureData().record
+        return appTableRecordClient.create(request, options).ensureData().record
     }
 
     /**
@@ -56,7 +56,7 @@ class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
             .batchCreateAppTableRecordReqBody(recordsBody)
             .build()
 
-        return appTableRecord.batchCreate(request, options).ensureData().records.toList()
+        return appTableRecordClient.batchCreate(request, options).ensureData().records.toList()
     }
 
     /**
@@ -74,7 +74,7 @@ class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
             .tableId(address.tableId)
             .build()
 
-        return appTableRecord.delete(request, options).ensureData().deleted
+        return appTableRecordClient.delete(request, options).ensureData().deleted
     }
 
     /**
@@ -96,7 +96,7 @@ class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
             .batchDeleteAppTableRecordReqBody(recordIdsBody)
             .build()
 
-        return appTableRecord.batchDelete(request, options)
+        return appTableRecordClient.batchDelete(request, options)
             .ensureData()
             .records
             .associate { it.recordId to it.deleted }
@@ -120,7 +120,7 @@ class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
             .appTableRecord(record)
             .build()
 
-        return appTableRecord.update(request, options).ensureData().record
+        return appTableRecordClient.update(request, options).ensureData().record
     }
 
     fun batchUpdate(
@@ -141,7 +141,7 @@ class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
             .batchUpdateAppTableRecordReqBody(recordsBody)
             .build()
 
-        return appTableRecord.batchUpdate(request, options).ensureData().records.toList()
+        return appTableRecordClient.batchUpdate(request, options).ensureData().records.toList()
     }
 
     fun get(
@@ -162,7 +162,7 @@ class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
     }
 
     fun get(request: GetAppTableRecordReq, options: RequestOptions = RequestOptions()): AppTableRecord? {
-        return appTableRecord.get(request, options).ensureData().record
+        return appTableRecordClient.get(request, options).ensureData().record
     }
 
     fun getFirst(
@@ -217,7 +217,7 @@ class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
         request: ListAppTableRecordReq,
         options: RequestOptions = RequestOptions(),
     ): List<AppTableRecord> {
-        val result = appTableRecord.list(request.apply { pageSize = 2 }, options).ensureData()
+        val result = appTableRecordClient.list(request.apply { pageSize = 2 }, options).ensureData()
         return if (result.total == 0) emptyList() else result.items.toList()
     }
 
@@ -225,7 +225,7 @@ class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
         if (request.pageSize == null) {
             request.pageSize = pageSize
         }
-        return appTableRecord.listCursor(request, options)
+        return appTableRecordClient.listCursor(request, options)
     }
 
     fun list(address: BitableAddress, options: RequestOptions = RequestOptions()): PageCursor<AppTableRecord> {
@@ -243,7 +243,7 @@ class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
             .tableId(address.tableId)
             .pageSize(1)
             .build()
-        return appTableRecord.list(request, options).ensureData().total
+        return appTableRecordClient.list(request, options).ensureData().total
     }
 
 }

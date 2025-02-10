@@ -16,8 +16,8 @@ import com.lark.oapi.service.bitable.v1.model.ListAppTableReq
  */
 class BitableApi(client: Client, private val pageSize: Int = 20) {
 
-    private val appTable = client.bitable().appTable()
-    private val appTableField = client.bitable().appTableField()
+    private val appTableClient = client.bitable().appTable()
+    private val appTableFieldClient = client.bitable().appTableField()
 
     /**
      * 从 [appToken](https://open.feishu.cn/document/server-docs/docs/bitable-v1/notification) 下获取与入参名称相同的多维表格(多维表格中表格名唯一)
@@ -63,7 +63,7 @@ class BitableApi(client: Client, private val pageSize: Int = 20) {
             .pageSize(pageSize)
             .appToken(appToken)
             .build()
-        return appTable.listCursor(request)
+        return appTableClient.listCursor(request)
     }
 
     private fun scanAppTableFields(address: BitableAddress): PageCursor<AppTableFieldForList> {
@@ -72,7 +72,7 @@ class BitableApi(client: Client, private val pageSize: Int = 20) {
             .appToken(address.appToken)
             .tableId(address.tableId)
             .build()
-        return appTableField.listCursor(request)
+        return appTableFieldClient.listCursor(request)
     }
 
 }

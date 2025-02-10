@@ -12,7 +12,7 @@
     <artifactId>bitable-data</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Lark Bitable</name>
-    <description>Demo project for Spring Boot</description>
+    <description>Bitable data support spring-data</description>
     <properties>
         <java.version>21</java.version>
         <kotlin.version>1.9.25</kotlin.version>
