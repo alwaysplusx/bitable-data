@@ -13,4 +13,8 @@ interface BitableRepository<T : Any, ID> : CrudRepository<T, ID> {
 
     fun scan(recordFilter: RecordFilter = SimpleRecordFilter()): PageCursor<T>
 
+    fun <S : T> getOne(filter: String): S?
+
+    fun count(filter: String): Long
+
 }

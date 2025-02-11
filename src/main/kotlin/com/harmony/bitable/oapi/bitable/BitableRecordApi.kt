@@ -187,7 +187,7 @@ class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
 
     fun getOne(
         address: BitableAddress,
-        filter: String,
+        filter: String? = null,
         userIdType: String? = null,
         options: RequestOptions = RequestOptions(),
     ): AppTableRecord? {
@@ -237,10 +237,11 @@ class BitableRecordApi(client: Client, private val pageSize: Int = 20) {
         return list(request, options)
     }
 
-    fun count(address: BitableAddress, options: RequestOptions = RequestOptions()): Int {
+    fun count(address: BitableAddress, filter: String? = null, options: RequestOptions = RequestOptions()): Int {
         val request = ListAppTableRecordReq.newBuilder()
             .appToken(address.appToken)
             .tableId(address.tableId)
+            .filter(filter)
             .pageSize(1)
             .build()
         return appTableRecordClient.list(request, options).ensureData().total

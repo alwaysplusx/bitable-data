@@ -131,6 +131,11 @@ class BitableTemplate(
 
     override fun count(type: Class<*>) = bitableRecordApi.count(getPersistentEntity(type).getBitableAddress()).toLong()
 
+    override fun <T : Any> count(type: Class<T>, filterText: String): Long {
+        val persistentEntity = getPersistentEntity(type)
+        return bitableRecordApi.count(persistentEntity.getBitableAddress(), filterText).toLong()
+    }
+
     override fun <T : Any> findById(id: Any, type: Class<T>): T? {
 
         val persistentEntity = getPersistentEntity(type)
@@ -171,6 +176,12 @@ class BitableTemplate(
             .fieldNames(recordFilter.getFieldNames())
             .build()
         return bitableRecordApi.list(request).convert { convertToEntity(it, persistentEntity) }
+    }
+
+    override fun <T : Any> getOne(type: Class<T>, filterText: String): T? {
+        val persistentEntity = getPersistentEntity(type)
+        val record = bitableRecordApi.getOne(persistentEntity.getBitableAddress(), filterText) ?: return null
+        return convertToEntity(record, persistentEntity)
     }
 
     private fun <T : Any> findByRecordId(recordId: String, persistentEntity: BitablePersistentEntity<T>): T? {

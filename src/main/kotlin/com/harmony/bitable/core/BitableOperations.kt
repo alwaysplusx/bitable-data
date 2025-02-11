@@ -32,4 +32,8 @@ interface BitableOperations {
 
     fun <T : Any> scan(type: Class<T>, recordFilter: RecordFilter): PageCursor<T>
 
+    fun <T : Any> getOne(type: Class<T>, filterText: String): T?
+
+    fun <T : Any> count(type: Class<T>, filterText: String): Long
+
 }

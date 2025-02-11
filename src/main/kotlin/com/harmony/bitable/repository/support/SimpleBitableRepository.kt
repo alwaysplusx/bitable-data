@@ -66,4 +66,11 @@ class SimpleBitableRepository<T : Any, ID : Any>(
         return bitableOperations.scan(entityInformation.javaType, recordFilter)
     }
 
+    override fun count(filter: String): Long = bitableOperations.count(entityInformation.javaType, filter)
+
+    override fun <S : T> getOne(filter: String): S? {
+        return bitableOperations.getOne(entityInformation.javaType, filter) as S?
+
+    }
+
 }
