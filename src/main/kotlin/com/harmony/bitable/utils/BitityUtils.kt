@@ -38,8 +38,10 @@ object BitityUtils {
 
         Number::class.java to NUMBER,
         Double::class.java to NUMBER,
+        Double::class.javaObjectType to NUMBER,
 
         Boolean::class.java to CHECKBOX,
+        Boolean::class.javaObjectType to CHECKBOX,
 
         Date::class.java to DATE_TIME,
         LocalDate::class.java to DATE_TIME,
@@ -72,7 +74,7 @@ object BitityUtils {
             return bitfieldType
         }
         for (key in DEFAULT_TYPE_MAPPING.keys) {
-            if (key.isAssignableFrom(type)) {
+            if (key!!.isAssignableFrom(type)) {
                 return DEFAULT_TYPE_MAPPING[key]
             }
         }
