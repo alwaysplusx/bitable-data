@@ -1,16 +1,15 @@
 package com.harmony.bitable.autoconfigure
 
-import com.harmony.bitable.BititySource
-import com.harmony.bitable.BititySourceImpl
-import com.harmony.bitable.convert.BitableConverters
-import com.harmony.bitable.convert.MappingBitableConverter
 import com.harmony.bitable.BitableSource
 import com.harmony.bitable.BitableSourceImpl
+import com.harmony.bitable.BititySource
+import com.harmony.bitable.BititySourceImpl
+import com.harmony.bitable.convert.MappingBitableConverter
 import com.harmony.bitable.core.BitableTemplate
 import com.harmony.bitable.mapping.BitableMappingContext
 import com.harmony.bitable.mapping.BitableMappingContextImpl
-import com.harmony.bitable.oapi.bitable.BitableApi
-import com.harmony.bitable.oapi.bitable.BitableRecordApi
+import com.harmony.bitable.oapi.BitableApi
+import com.harmony.bitable.oapi.BitableRecordApi
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -49,12 +48,11 @@ class BitableRepositoryAutoConfiguration(private val properties: BitableProperti
     @ConditionalOnMissingBean(BitableTemplate::class)
     fun bitableTemplate(
         bitableRecordApi: BitableRecordApi,
-        bitableMappingContext: BitableMappingContext,
+        bitableMappingContext: BitableMappingContext
     ): BitableTemplate {
         val bitableConverter = MappingBitableConverter(
             mappingContext = bitableMappingContext,
-            entityInstantiators = EntityInstantiators(),
-            defaultConversionService = BitableConverters.defaultConversionService()
+            entityInstantiators = EntityInstantiators()
         )
         return BitableTemplate(
             bitableRecordApi = bitableRecordApi,

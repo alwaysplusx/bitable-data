@@ -1,4 +1,4 @@
-package com.harmony.bitable.filter
+package com.harmony.bitable.oapi.filter
 
 import com.harmony.bitable.oapi.Pageable
 
@@ -7,6 +7,7 @@ import com.harmony.bitable.oapi.Pageable
  * @author wuxin
  * @see com.lark.oapi.service.bitable.v1.model.ListAppTableRecordReq
  */
+@Deprecated("not recommend")
 class SimpleRecordFilter(
     private val filter: String? = null,
     private val pageable: Pageable = Pageable(),

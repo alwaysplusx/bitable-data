@@ -1,8 +1,9 @@
 package com.harmony.bitable.repository
 
-import com.harmony.bitable.filter.RecordFilter
-import com.harmony.bitable.filter.SimpleRecordFilter
-import com.harmony.bitable.oapi.PageCursor
+import com.harmony.bitable.oapi.Pageable
+import com.harmony.bitable.oapi.cursor.PageCursor
+import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReq
+import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReqBody
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.NoRepositoryBean
 
@@ -11,10 +12,13 @@ interface BitableRepository<T : Any, ID> : CrudRepository<T, ID> {
 
     fun <S : T> update(entity: S): S
 
-    fun scan(recordFilter: RecordFilter = SimpleRecordFilter()): PageCursor<T>
+    fun scan(
+        pageable: Pageable = Pageable(),
+        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }
+    ): PageCursor<T>
 
-    fun <S : T> getOne(filter: String): S?
+    fun getOne(searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }): T
 
-    fun count(filter: String): Long
+    fun count(searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }): Long
 
 }

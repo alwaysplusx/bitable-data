@@ -1,4 +1,4 @@
-package com.harmony.bitable.oapi
+package com.harmony.bitable.oapi.cache
 
 import com.lark.oapi.core.cache.ICache
 import java.util.concurrent.TimeUnit

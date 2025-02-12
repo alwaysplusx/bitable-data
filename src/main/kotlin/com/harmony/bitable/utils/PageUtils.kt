@@ -1,7 +1,7 @@
 package com.harmony.bitable.utils
 
-import com.harmony.bitable.oapi.PageCursor
-import com.harmony.bitable.oapi.PageSlice
+import com.harmony.bitable.oapi.cursor.PageCursor
+import com.harmony.bitable.oapi.cursor.PageSlice
 import com.harmony.bitable.oapi.Pageable
 
 /**

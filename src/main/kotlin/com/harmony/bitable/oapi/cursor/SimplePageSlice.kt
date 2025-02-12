@@ -1,4 +1,4 @@
-package com.harmony.bitable.oapi
+package com.harmony.bitable.oapi.cursor
 
 class SimplePageSlice<T>(
     private val items: List<T>,

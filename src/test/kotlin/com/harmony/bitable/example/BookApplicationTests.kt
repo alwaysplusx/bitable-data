@@ -1,6 +1,6 @@
 package com.harmony.bitable.example
 
-import com.harmony.bitable.oapi.stream
+import com.harmony.bitable.oapi.cursor.steamOfElements
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -8,9 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest
 @SpringBootTest(
     properties = [
         "debug=true",
-        "bitable.client.app-id=xx",
-        "bitable.client.app-secret=xx",
-        "bitable.app-token=xx"
+        "lark.client.app-id=xxx",
+        "lark.client.app-secret=xxx",
+        "bitable.app-token=xxx"
     ]
 )
 class BookApplicationTests {
@@ -20,7 +20,7 @@ class BookApplicationTests {
 
     @Test
     fun test() {
-        bookRepository.scan().stream().forEach {
+        bookRepository.scan().steamOfElements().forEach {
             println("Book: id=${it.id} name=${it.name}")
         }
     }

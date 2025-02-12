@@ -4,6 +4,8 @@ import com.harmony.bitable.filter.*
 import com.harmony.bitable.filter.dsl.Criteria.Companion.AND
 import com.harmony.bitable.filter.dsl.Criteria.Companion.OR
 import com.harmony.bitable.filter.dsl.Criteria.Companion.buildFromSource
+import com.harmony.bitable.oapi.filter.RecordFilter
+import com.harmony.bitable.oapi.filter.SimpleRecordFilter
 import com.querydsl.core.types.Predicate
 import com.querydsl.kotlin.and
 import com.querydsl.kotlin.or

@@ -1,9 +1,9 @@
 // auto codegen
 package com.harmony.bitable.oapi.${group}
 
-import com.harmony.bitable.oapi.PageCursor
-import com.harmony.bitable.oapi.PageSlice
-import com.harmony.bitable.oapi.SimplePageSlice
+import com.harmony.bitable.oapi.cursor.PageCursor
+import com.harmony.bitable.oapi.cursor.PageSlice
+import com.harmony.bitable.oapi.cursor.SimplePageSlice
 import com.harmony.bitable.oapi.ensurePage
 import com.harmony.bitable.utils.PageUtils.scan
 
@@ -36,4 +36,5 @@ fun ${c.responseDataType.simpleName}.toPageSlice(): PageSlice<${c.responseItemTy
         total = this.total
     )
 }
+
 </#list>

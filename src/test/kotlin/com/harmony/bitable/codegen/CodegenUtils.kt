@@ -29,7 +29,7 @@ object CodegenUtils {
     }
 
     fun loadPageMethods(path: String): List<MethodModel> {
-        val location = "classpath*:${path.replace(".", "/")}*.class"
+        val location = "classpath*:${path.replace(".", "/")}/*.class"
         val serviceTypes = PathMatchingResourcePatternResolver().getResources(location).map { forType(it) }
 
         val result = mutableListOf<MethodModel>()

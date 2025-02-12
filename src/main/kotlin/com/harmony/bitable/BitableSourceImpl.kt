@@ -1,6 +1,6 @@
 package com.harmony.bitable
 
-import com.harmony.bitable.oapi.bitable.BitableApi
+import com.harmony.bitable.oapi.BitableApi
 
 
 class BitableSourceImpl(

@@ -11,6 +11,8 @@ import java.io.Writer
 fun main() {
 
     val bitableResource = "com.lark.oapi.service.bitable.v1.resource"
+    println("Will generate the resource: $bitableResource")
+
     val groupedMap = loadPageMethods(bitableResource).groupBy { it.group }
     val codegen = ExtensionCodegen(extensionTemplate())
 

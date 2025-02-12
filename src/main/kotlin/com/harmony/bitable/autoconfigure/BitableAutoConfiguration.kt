@@ -1,48 +1,92 @@
 package com.harmony.bitable.autoconfigure
 
-import com.harmony.bitable.oapi.LarkClientBuilder
-import com.harmony.bitable.oapi.bitable.BitableApi
-import com.harmony.bitable.oapi.bitable.BitableRecordApi
+import com.harmony.bitable.autoconfigure.BitableAutoConfiguration.BitableClientWithRateLimiterRegistry
+import com.harmony.bitable.autoconfigure.BitableAutoConfiguration.BitableClientWithoutRateLimiterRegistry
+import com.harmony.bitable.oapi.BitableApi
+import com.harmony.bitable.oapi.BitableRecordApi
+import com.harmony.bitable.oapi.bitable.BitableApiImpl
+import com.harmony.bitable.oapi.bitable.BitableRecordApiImpl
+import com.harmony.bitable.oapi.ratelimiter.RateLimiterInvocationHandler
 import com.lark.oapi.Client
-import com.lark.oapi.core.cache.ICache
-import com.lark.oapi.core.httpclient.IHttpTransport
-import org.springframework.beans.factory.annotation.Autowired
+import io.github.resilience4j.ratelimiter.RateLimiterRegistry
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.DependsOn
+import org.springframework.context.annotation.Import
+import org.springframework.util.ClassUtils
+import java.lang.reflect.Proxy
+import kotlin.reflect.KClass
 
-@ConditionalOnClass(Client::class)
+@AutoConfigureAfter(
+    value = [LarkAutoConfiguration::class],
+    name = ["io.github.resilience4j.springboot3.ratelimiter.autoconfigure.RateLimiterAutoConfiguration"]
+)
+@ConditionalOnBean(Client::class)
 @EnableConfigurationProperties(BitableProperties::class)
-class BitableAutoConfiguration(private val properties: BitableProperties) {
+@Import(BitableClientWithRateLimiterRegistry::class, BitableClientWithoutRateLimiterRegistry::class)
+class BitableAutoConfiguration {
 
-    @Bean
-    @ConditionalOnProperty(prefix = "bitable.client", name = ["app-id", "app-secret"])
-    @ConditionalOnMissingBean(Client::class)
-    fun larkClient(
-        @Autowired(required = false) cache: ICache?,
-        @Autowired(required = false) httpTransient: IHttpTransport?,
-    ): Client {
-        return LarkClientBuilder()
-            .withConfig(properties.client)
-            .setCache(cache)
-            .setHttpTransport(httpTransient)
-            .build()
+    @ConditionalOnMissingBean(type = ["io.github.resilience4j.ratelimiter.RateLimiterRegistry"])
+    class BitableClientWithoutRateLimiterRegistry(
+        private val properties: BitableProperties,
+        private val larkClient: Client
+    ) {
+
+        @Bean
+        @ConditionalOnMissingBean(BitableApi::class)
+        fun bitableApi(): BitableApi = BitableApiImpl(larkClient, properties.defaultPageSize)
+
+        @Bean
+        @ConditionalOnMissingBean(BitableRecordApi::class)
+        fun bitableRecordApi(): BitableRecordApi = BitableRecordApiImpl(larkClient, properties.defaultPageSize)
+
     }
 
-    @Bean
-    @DependsOn("larkClient")
-    @ConditionalOnBean(Client::class)
-    @ConditionalOnMissingBean(BitableApi::class)
-    fun bitableApi(client: Client) = BitableApi(client, properties.defaultPageSize)
+    @ConditionalOnClass(RateLimiterRegistry::class)
+    @ConditionalOnBean(RateLimiterRegistry::class)
+    class BitableClientWithRateLimiterRegistry(
+        private val properties: BitableProperties,
+        private val larkClient: Client,
+        private val rateLimiterRegistry: RateLimiterRegistry
+    ) {
 
-    @Bean
-    @DependsOn("larkClient")
-    @ConditionalOnBean(Client::class)
-    @ConditionalOnMissingBean(BitableRecordApi::class)
-    fun bitableRecordApi(client: Client) = BitableRecordApi(client, properties.defaultPageSize)
+        private val log: Logger = LoggerFactory.getLogger(BitableClientWithRateLimiterRegistry::class.java)
+
+        @Bean
+        @ConditionalOnMissingBean(BitableApi::class)
+        fun bitableApi(): BitableApi {
+            val bitableApi = BitableApiImpl(larkClient, properties.defaultPageSize)
+            return proxyWithRateLimiter(bitableApi, BitableApi::class, rateLimiterRegistry)
+        }
+
+        @Bean
+        @ConditionalOnMissingBean(BitableRecordApi::class)
+        fun bitableRecordApi(
+        ): BitableRecordApi {
+            val bitableRecordApi = BitableRecordApiImpl(larkClient, properties.defaultPageSize)
+            return proxyWithRateLimiter(bitableRecordApi, BitableRecordApi::class, rateLimiterRegistry)
+        }
+
+        private fun <T : Any> proxyWithRateLimiter(
+            target: T,
+            interfaces: KClass<T>,
+            rateLimiterRegistry: RateLimiterRegistry
+        ): T {
+            log.info("Create rate-limiter {}", interfaces.simpleName)
+            val loader = interfaces::class.java.classLoader ?: ClassUtils.getDefaultClassLoader()
+            return Proxy.newProxyInstance(
+                loader,
+                arrayOf(interfaces.java),
+                RateLimiterInvocationHandler(target, rateLimiterRegistry)
+            ) as T
+        }
+
+    }
 
 }
+

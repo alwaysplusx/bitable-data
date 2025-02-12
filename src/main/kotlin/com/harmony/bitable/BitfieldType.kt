@@ -1,5 +1,6 @@
 package com.harmony.bitable
 
+import com.lark.oapi.service.bitable.v1.model.Group
 import com.lark.oapi.service.bitable.v1.model.Location
 import com.lark.oapi.service.bitable.v1.model.Person
 import com.lark.oapi.service.bitable.v1.model.Url
@@ -30,6 +31,8 @@ enum class BitfieldType(val value: Int, val type: Class<*>) {
 
     PERSON(11, Array<Person>::class.java),
 
+    PHONE_NUMBER(13, String::class.java),
+
     URL(15, Url::class.java),
 
     ATTACHMENT(17, List::class.java),
@@ -37,6 +40,10 @@ enum class BitfieldType(val value: Int, val type: Class<*>) {
     ASSOCIATION(18, String::class.java),
 
     FORMULA(20, String::class.java),
+
+    LOCATION(22, Location::class.java),
+
+    GROUP(23, Group::class.java),
 
     CREATED_AT(1001, Long::class.java),
 
@@ -47,9 +54,5 @@ enum class BitfieldType(val value: Int, val type: Class<*>) {
     UPDATED_BY(1004, Person::class.java),
 
     AUTO_SERIAL(1005, String::class.java),
-
-    PHONE_NUMBER(13, String::class.java),
-
-    LOCATION(22, Location::class.java);
 
 }

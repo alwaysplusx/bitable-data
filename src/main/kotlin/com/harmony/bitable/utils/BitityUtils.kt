@@ -74,7 +74,7 @@ object BitityUtils {
             return bitfieldType
         }
         for (key in DEFAULT_TYPE_MAPPING.keys) {
-            if (key!!.isAssignableFrom(type)) {
+            if (key.isAssignableFrom(type)) {
                 return DEFAULT_TYPE_MAPPING[key]
             }
         }

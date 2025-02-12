@@ -1,7 +1,11 @@
 package com.harmony.bitable.core
 
-import com.harmony.bitable.filter.RecordFilter
-import com.harmony.bitable.oapi.PageCursor
+import com.harmony.bitable.oapi.Pageable
+import com.harmony.bitable.oapi.cursor.PageCursor
+import com.harmony.bitable.oapi.cursor.firstElementOrNull
+import com.harmony.bitable.oapi.cursor.toElementList
+import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReq
+import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReqBody
 
 /**
  * 支持 bitable 数据的操作
@@ -20,20 +24,37 @@ interface BitableOperations {
 
     fun <T : Any> delete(id: Any, type: Class<T>): T
 
-    fun count(type: Class<*>): Long
-
     fun <T : Any> findById(id: Any, type: Class<T>): T?
 
     fun <T : Any> findAll(type: Class<T>): Iterable<T>
 
     fun <T : Any> scan(type: Class<T>): PageCursor<T>
 
-    fun <T : Any> findAll(type: Class<T>, recordFilter: RecordFilter): Iterable<T>
+    fun <T : Any> findAll(
+        type: Class<T>,
+        pageable: Pageable = Pageable(),
+        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }
+    ): Iterable<T> = scan(type, pageable, searchCustomizer).toElementList()
 
-    fun <T : Any> scan(type: Class<T>, recordFilter: RecordFilter): PageCursor<T>
+    fun <T : Any> scan(
+        type: Class<T>,
+        pageable: Pageable = Pageable(),
+        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }
+    ): PageCursor<T>
 
-    fun <T : Any> getOne(type: Class<T>, filterText: String): T?
+    fun <T : Any> getOne(
+        type: Class<T>,
+        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }
+    ): T
 
-    fun <T : Any> count(type: Class<T>, filterText: String): Long
+    fun <T : Any> findFirst(
+        type: Class<T>,
+        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }
+    ): T? = scan(type, Pageable(1), searchCustomizer).firstElementOrNull()
+
+    fun <T : Any> count(
+        type: Class<T>,
+        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }
+    ): Long
 
 }

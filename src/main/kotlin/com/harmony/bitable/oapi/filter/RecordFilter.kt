@@ -1,8 +1,9 @@
-package com.harmony.bitable.filter
+package com.harmony.bitable.oapi.filter
 
 /**
  * @see com.lark.oapi.service.bitable.v1.model.ListAppTableRecordReq
  */
+@Deprecated("not recommend")
 interface RecordFilter {
 
     fun getPageSize(): Int = 20

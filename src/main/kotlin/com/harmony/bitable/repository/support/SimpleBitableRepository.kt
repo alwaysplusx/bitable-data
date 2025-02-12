@@ -2,9 +2,11 @@ package com.harmony.bitable.repository.support
 
 import com.harmony.bitable.core.BitableEntityInformation
 import com.harmony.bitable.core.BitableOperations
-import com.harmony.bitable.filter.RecordFilter
-import com.harmony.bitable.oapi.PageCursor
+import com.harmony.bitable.oapi.Pageable
+import com.harmony.bitable.oapi.cursor.PageCursor
 import com.harmony.bitable.repository.BitableRepository
+import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReq
+import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReqBody
 import org.springframework.data.util.Streamable
 import java.util.*
 
@@ -45,9 +47,7 @@ class SimpleBitableRepository<T : Any, ID : Any>(
     }
 
     override fun deleteAllById(ids: Iterable<ID>) {
-        for (id in ids) {
-            bitableOperations.delete(id, entityInformation.javaType)
-        }
+        ids.forEach { bitableOperations.delete(it, entityInformation.javaType) }
     }
 
     override fun delete(entity: T) {
@@ -62,15 +62,19 @@ class SimpleBitableRepository<T : Any, ID : Any>(
         return Streamable.of(ids).map { findById(it).orElse(null) }.filterNotNull()
     }
 
-    override fun scan(recordFilter: RecordFilter): PageCursor<T> {
-        return bitableOperations.scan(entityInformation.javaType, recordFilter)
+    override fun scan(
+        pageable: Pageable,
+        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit
+    ): PageCursor<T> {
+        return bitableOperations.scan(entityInformation.javaType, pageable, searchCustomizer)
     }
 
-    override fun count(filter: String): Long = bitableOperations.count(entityInformation.javaType, filter)
+    override fun count(searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit): Long {
+        return bitableOperations.count(entityInformation.javaType, searchCustomizer)
+    }
 
-    override fun <S : T> getOne(filter: String): S? {
-        return bitableOperations.getOne(entityInformation.javaType, filter) as S?
-
+    override fun getOne(searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit): T {
+        return bitableOperations.getOne(entityInformation.javaType, searchCustomizer)
     }
 
 }
