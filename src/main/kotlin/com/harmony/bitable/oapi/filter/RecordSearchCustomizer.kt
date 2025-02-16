@@ -8,6 +8,13 @@ import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReqBody
  */
 interface RecordSearchCustomizer {
 
-    fun customize(requestBuilder: SearchAppTableRecordReq.Builder, bodyBuilder: SearchAppTableRecordReqBody.Builder)
+    companion object {
+        val NoOpCustomizer: RecordSearchCustomizer = object : RecordSearchCustomizer {
+            override fun customize(req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) {
+            }
+        }
+    }
+
+    fun customize(req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder)
 
 }
