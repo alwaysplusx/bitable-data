@@ -7,7 +7,6 @@ import com.harmony.bitable.oapi.BitableRecordApi
 import com.harmony.bitable.oapi.LarkException
 import com.harmony.bitable.oapi.Pageable
 import com.harmony.bitable.oapi.cursor.*
-import com.lark.oapi.core.request.RequestOptions
 import com.lark.oapi.service.bitable.v1.enums.ConditionOperatorEnum
 import com.lark.oapi.service.bitable.v1.model.*
 import org.springframework.dao.DataIntegrityViolationException
@@ -69,7 +68,7 @@ class BitableTemplate(
 
     override fun delete(type: Class<*>) {
         val persistentEntity = getPersistentEntity(type)
-        bitableRecordApi.list(persistentEntity.getBitableAddress())
+        bitableRecordApi.search(persistentEntity.getBitableAddress())
             .steamOfElements()
             .forEach {
                 deleteByRecord(it, persistentEntity)
@@ -113,7 +112,7 @@ class BitableTemplate(
         searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit
     ): Long {
         val persistentEntity = getPersistentEntity(type)
-        return bitableRecordApi.count(persistentEntity.getBitableAddress(), RequestOptions(), searchCustomizer).toLong()
+        return bitableRecordApi.count(persistentEntity.getBitableAddress(), searchCustomizer).toLong()
     }
 
     override fun <T : Any> findById(id: Any, type: Class<T>): T? {
@@ -125,16 +124,6 @@ class BitableTemplate(
         return convertToEntity(record, persistentEntity)
     }
 
-    override fun <T : Any> findAll(type: Class<T>): Iterable<T> {
-        return scan(type).toElementList()
-    }
-
-    override fun <T : Any> scan(type: Class<T>): PageCursor<T> {
-        val persistentEntity = getPersistentEntity(type)
-        return bitableRecordApi.list(persistentEntity.getBitableAddress())
-            .convert { convertToEntity(it, persistentEntity) }
-    }
-
     override fun <T : Any> scan(
         type: Class<T>,
         pageable: Pageable,
@@ -144,7 +133,6 @@ class BitableTemplate(
         return bitableRecordApi.search(
             persistentEntity.getBitableAddress(),
             pageable,
-            RequestOptions(),
             searchCustomizer
         ).convert { convertToEntity(it, persistentEntity) }
     }
@@ -198,7 +186,6 @@ class BitableTemplate(
         val matchedPageSlice: PageSlice<AppTableRecord>? = bitableRecordApi.search(
             persistentEntity.getBitableAddress(),
             Pageable(2),
-            RequestOptions(),
             searchCustomizer
         ).nextSliceOrNull()
         if (matchedPageSlice == null || matchedPageSlice.total() == 0) {

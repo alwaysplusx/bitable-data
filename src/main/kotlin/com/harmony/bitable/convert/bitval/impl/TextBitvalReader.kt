@@ -17,7 +17,7 @@ class TextBitvalReader : BitvalReader {
     override fun read(property: BitablePersistentProperty, record: AppTableRecord): Any? {
         val value = record.getFieldValue(property.getBitfieldName()) ?: return null
         return if (value is List<*>) {
-            return value[0] as Map<String, String>["text"]
+            (value[0] as Map<String, String>)["text"]
         } else {
             value as String
         }

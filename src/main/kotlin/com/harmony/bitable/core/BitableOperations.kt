@@ -26,15 +26,7 @@ interface BitableOperations {
 
     fun <T : Any> findById(id: Any, type: Class<T>): T?
 
-    fun <T : Any> findAll(type: Class<T>): Iterable<T>
-
-    fun <T : Any> scan(type: Class<T>): PageCursor<T>
-
-    fun <T : Any> findAll(
-        type: Class<T>,
-        pageable: Pageable = Pageable(),
-        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }
-    ): Iterable<T> = scan(type, pageable, searchCustomizer).toElementList()
+    fun <T : Any> findAll(type: Class<T>): Iterable<T> = scan(type).toElementList()
 
     fun <T : Any> scan(
         type: Class<T>,

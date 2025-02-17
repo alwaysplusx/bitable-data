@@ -1,8 +1,5 @@
 package com.harmony.bitable.oapi.cursor
 
-import org.springframework.data.util.Streamable
-import java.util.stream.Stream
-
 fun <T> PageCursor<T>.nextSliceOrNull(): PageSlice<T>? {
     return if (hasNext()) next() else null
 }
@@ -25,10 +22,8 @@ fun <T> PageCursor<T>.firstElement(predicate: (T) -> Boolean = { true }): T {
         .orElseThrow { throw IllegalStateException("element not found") }
 }
 
-fun <T> PageCursor<T>.firstElementOrNull(predicate: (T) -> Boolean = { true }) =
+fun <T> PageCursor<T>.firstElementOrNull(predicate: (T) -> Boolean = { true }): T? =
     this.steamOfElements().filter(predicate).findFirst().orElse(null)
-
-fun <T> PageCursor<T>.steamOfElements(): Stream<T> = Streamable.of(Iterable { this }).stream().flatMap { it.stream() }
 
 fun <T> PageCursor<T>.toElementList(): MutableList<T> = this.steamOfElements().toList()
 

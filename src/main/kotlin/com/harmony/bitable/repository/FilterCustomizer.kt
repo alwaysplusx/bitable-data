@@ -1,4 +1,4 @@
-package com.harmony.bitable.oapi.filter
+package com.harmony.bitable.repository
 
 import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReq
 import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReqBody
@@ -6,10 +6,10 @@ import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReqBody
 /**
  * @author wuxin
  */
-interface RecordSearchCustomizer {
+interface FilterCustomizer {
 
     companion object {
-        val NoOpCustomizer: RecordSearchCustomizer = object : RecordSearchCustomizer {
+        val NoOpCustomizer: FilterCustomizer = object : FilterCustomizer {
             override fun customize(req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) {
             }
         }

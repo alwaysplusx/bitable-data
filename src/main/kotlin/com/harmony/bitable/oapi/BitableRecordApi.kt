@@ -16,12 +16,7 @@ interface BitableRecordApi {
      * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.create
      */
     @RateLimiter(name = "bitable-record-create")
-    fun create(
-        address: BitableAddress,
-        record: AppTableRecord,
-        userIdType: String? = null,
-        options: RequestOptions = RequestOptions(),
-    ): AppTableRecord
+    fun create(address: BitableAddress, record: AppTableRecord, userIdType: String? = null): AppTableRecord
 
     /**
      * 批量创建记录
@@ -32,7 +27,6 @@ interface BitableRecordApi {
         address: BitableAddress,
         records: List<AppTableRecord>,
         userIdType: String? = null,
-        options: RequestOptions = RequestOptions(),
     ): List<AppTableRecord>
 
     /**
@@ -40,34 +34,21 @@ interface BitableRecordApi {
      * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.delete
      */
     @RateLimiter(name = "bitable-record-delete")
-    fun delete(
-        address: BitableAddress,
-        recordId: String,
-        options: RequestOptions = RequestOptions(),
-    ): Boolean
+    fun delete(address: BitableAddress, recordId: String): Boolean
 
     /**
      * 批量删除记录
      * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.batchDelete
      */
     @RateLimiter(name = "bitable-record-batch-delete")
-    fun batchDelete(
-        address: BitableAddress,
-        recordIds: List<String>,
-        options: RequestOptions = RequestOptions(),
-    ): Map<String, Boolean>
+    fun batchDelete(address: BitableAddress, recordIds: List<String>): Map<String, Boolean>
 
     /**
      * 更新记录
      * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.update
      */
     @RateLimiter(name = "bitable-record-update")
-    fun update(
-        address: BitableAddress,
-        record: AppTableRecord,
-        userIdType: String? = null,
-        options: RequestOptions = RequestOptions(),
-    ): AppTableRecord
+    fun update(address: BitableAddress, record: AppTableRecord, userIdType: String? = null): AppTableRecord
 
     /**
      * 批量更新记录
@@ -78,7 +59,6 @@ interface BitableRecordApi {
         address: BitableAddress,
         records: List<AppTableRecord>,
         userIdType: String? = null,
-        options: RequestOptions = RequestOptions(),
     ): List<AppTableRecord>
 
     /**
@@ -86,14 +66,10 @@ interface BitableRecordApi {
      * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.get
      */
     @RateLimiter(name = "bitable-record-batch-get")
-    fun get(
-        address: BitableAddress,
-        recordId: String,
-        userIdType: String? = null,
-        options: RequestOptions = RequestOptions(),
-    ): AppTableRecord? = batchGet(address, listOf(recordId), options) { _, body ->
-        body.userIdType(userIdType)
-    }.firstOrNull()
+    fun get(address: BitableAddress, recordId: String, userIdType: String? = null): AppTableRecord? =
+        batchGet(address, listOf(recordId)) { _, body ->
+            body.userIdType(userIdType)
+        }.firstOrNull()
 
     /**
      * 批量获取记录
@@ -103,15 +79,8 @@ interface BitableRecordApi {
     fun batchGet(
         address: BitableAddress,
         recordIds: List<String>,
-        options: RequestOptions = RequestOptions(),
         customizer: ((BatchGetAppTableRecordReq.Builder, BatchGetAppTableRecordReqBody.Builder) -> Unit) = { _, _ -> }
     ): List<AppTableRecord>
-
-    @RateLimiter(name = "bitable-record-search")
-    fun list(
-        address: BitableAddress,
-        options: RequestOptions = RequestOptions()
-    ): PageCursor<AppTableRecord>
 
     /**
      * 搜索记录
@@ -121,7 +90,6 @@ interface BitableRecordApi {
     fun search(
         address: BitableAddress,
         pageable: Pageable = Pageable(),
-        options: RequestOptions = RequestOptions(),
         customizer: ((SearchAppTableRecordReq.Builder, SearchAppTableRecordReqBody.Builder) -> Unit) = { _, _ -> }
     ): PageCursor<AppTableRecord>
 
@@ -131,7 +99,6 @@ interface BitableRecordApi {
     @RateLimiter(name = "bitable-record-search")
     fun count(
         address: BitableAddress,
-        options: RequestOptions = RequestOptions(),
         customizer: ((SearchAppTableRecordReq.Builder, SearchAppTableRecordReqBody.Builder) -> Unit) = { _, _ -> }
     ): Int
 

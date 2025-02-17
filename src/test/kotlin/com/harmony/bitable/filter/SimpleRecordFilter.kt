@@ -1,4 +1,4 @@
-package com.harmony.bitable.oapi.filter
+package com.harmony.bitable.filter
 
 import com.harmony.bitable.oapi.Pageable
 

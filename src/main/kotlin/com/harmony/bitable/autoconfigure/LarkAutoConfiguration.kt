@@ -1,6 +1,5 @@
 package com.harmony.bitable.autoconfigure
 
-import com.harmony.bitable.oapi.LarkClientBuilder
 import com.lark.oapi.Client
 import com.lark.oapi.core.cache.ICache
 import com.lark.oapi.core.httpclient.IHttpTransport
@@ -25,10 +24,21 @@ class LarkAutoConfiguration(private val properties: LarkProperties) {
         @Autowired(required = false) cache: ICache?,
         @Autowired(required = false) httpTransient: IHttpTransport?,
     ): Client {
-        return LarkClientBuilder()
-            .withConfig(properties.client)
-            .setCache(cache)
-            .setHttpTransport(httpTransient)
+        val config = properties.client
+        requireNotNull(config.appId) { "lark appId not allow null" }
+        requireNotNull(config.appSecret) { "lark appSecret not allow null" }
+
+        val builder = Client.newBuilder(config.appId, config.appSecret)
+        if (config.isDisableTokenCache) {
+            builder.disableTokenCache()
+        }
+        return builder.appType(config.appType)
+            .helpDeskCredential(config.helpDeskID, config.helpDeskToken)
+            .logReqAtDebug(config.isLogReqAtDebug)
+            .openBaseUrl(config.baseUrl)
+            .tokenCache(config.cache)
+            .httpTransport(config.httpTransport)
+            .requestTimeout(config.requestTimeOut, config.timeOutTimeUnit)
             .build()
     }
 

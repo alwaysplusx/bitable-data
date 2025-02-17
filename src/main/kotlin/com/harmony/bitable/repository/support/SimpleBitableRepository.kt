@@ -5,8 +5,7 @@ import com.harmony.bitable.core.BitableOperations
 import com.harmony.bitable.oapi.Pageable
 import com.harmony.bitable.oapi.cursor.PageCursor
 import com.harmony.bitable.repository.BitableRepository
-import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReq
-import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReqBody
+import com.harmony.bitable.repository.FilterCustomizer
 import org.springframework.data.util.Streamable
 import java.util.*
 
@@ -62,19 +61,20 @@ class SimpleBitableRepository<T : Any, ID : Any>(
         return Streamable.of(ids).map { findById(it).orElse(null) }.filterNotNull()
     }
 
-    override fun scan(
-        pageable: Pageable,
-        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit
-    ): PageCursor<T> {
-        return bitableOperations.scan(entityInformation.javaType, pageable, searchCustomizer)
+    override fun getOne(filterCustomizer: FilterCustomizer): T {
+        return bitableOperations.getOne(entityInformation.javaType, filterCustomizer::customize)
     }
 
-    override fun count(searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit): Long {
-        return bitableOperations.count(entityInformation.javaType, searchCustomizer)
+    override fun findFirst(filterCustomizer: FilterCustomizer): T? {
+        return bitableOperations.findFirst(entityInformation.javaType, filterCustomizer::customize)
     }
 
-    override fun getOne(searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit): T {
-        return bitableOperations.getOne(entityInformation.javaType, searchCustomizer)
+    override fun search(filterCustomizer: FilterCustomizer): PageCursor<T> {
+        return bitableOperations.scan(entityInformation.javaType, Pageable(), filterCustomizer::customize)
+    }
+
+    override fun count(filterCustomizer: FilterCustomizer): Long {
+        return bitableOperations.count(entityInformation.javaType, filterCustomizer::customize)
     }
 
 }

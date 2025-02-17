@@ -17,8 +17,11 @@ class CreatedByBitvalReader : BitvalReader {
     }
 
     override fun read(property: BitablePersistentProperty, record: AppTableRecord): Person? {
-        val value = record.createdBy ?: record.getPropertyValue(property)
-        return ValueConverters.convertObject(value, Person::class.java)
+        if (record.createdBy != null) {
+            return record.createdBy
+        }
+        val value = record.getPropertyValue(property)
+        return ValueConverters.convertArray(value, Person::class.java)?.firstOrNull()
     }
 
 }

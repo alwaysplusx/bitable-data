@@ -16,7 +16,10 @@ class UpdatedByBitvalReader : BitvalReader {
     }
 
     override fun read(property: BitablePersistentProperty, record: AppTableRecord): Any? {
-        val value = record.lastModifiedBy ?: record.getPropertyValue(property)
-        return ValueConverters.convertObject(value, Person::class.java)
+        if (record.lastModifiedBy != null) {
+            return record.lastModifiedBy
+        }
+        val value = record.getPropertyValue(property)
+        return ValueConverters.convertArray(value, Person::class.java)?.firstOrNull()
     }
 }

@@ -1,4 +1,4 @@
-package com.harmony.bitable.oapi.filter
+package com.harmony.bitable.filter
 
 /**
  * @see com.lark.oapi.service.bitable.v1.model.ListAppTableRecordReq

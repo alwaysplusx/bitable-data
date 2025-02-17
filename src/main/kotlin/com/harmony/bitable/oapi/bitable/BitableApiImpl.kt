@@ -4,7 +4,6 @@ import com.harmony.bitable.Bitable
 import com.harmony.bitable.BitableAddress
 import com.harmony.bitable.oapi.BitableApi
 import com.harmony.bitable.oapi.cursor.PageCursor
-import com.harmony.bitable.oapi.cursor.steamOfElements
 import com.harmony.bitable.oapi.cursor.toElementList
 import com.lark.oapi.Client
 import com.lark.oapi.service.bitable.v1.model.AppTable
