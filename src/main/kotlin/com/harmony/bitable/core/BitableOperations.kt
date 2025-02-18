@@ -20,11 +20,11 @@ interface BitableOperations {
 
     fun <T : Any> deleteAll(domainType: Class<T>)
 
-    fun <T : Any> delete(instance: T): T
+    fun <T : Any> delete(instance: T): Boolean
 
-    fun <T : Any> deleteById(recordId: String, domainType: Class<T>): T
+    fun <T : Any> deleteById(recordId: String, domainType: Class<T>): Boolean
 
-    fun <T : Any> deleteAllById(recordIds: Iterable<String>, domainType: Class<T>);
+    fun <T : Any> deleteAllById(recordIds: Iterable<String>, domainType: Class<T>): Map<String, Boolean>
 
     fun <T : Any> findById(recordId: String, domainType: Class<T>): T?
 
