@@ -6,7 +6,7 @@ import org.springframework.data.mapping.model.AnnotationBasedPersistentProperty
 import org.springframework.data.mapping.model.Property
 import org.springframework.data.mapping.model.SimpleTypeHolder
 
-internal class BitablePersistentPropertyImpl(
+internal class BasicBitablePersistentProperty(
     property: Property,
     owner: BitablePersistentEntity<*>,
     simpleTypeHolder: SimpleTypeHolder,

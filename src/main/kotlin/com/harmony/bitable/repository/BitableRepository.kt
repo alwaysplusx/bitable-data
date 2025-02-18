@@ -5,7 +5,7 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.NoRepositoryBean
 
 @NoRepositoryBean
-interface BitableRepository<T : Any, ID> : CrudRepository<T, ID> {
+interface BitableRepository<T : Any> : CrudRepository<T, String> {
 
     fun <S : T> update(entity: S): S
 

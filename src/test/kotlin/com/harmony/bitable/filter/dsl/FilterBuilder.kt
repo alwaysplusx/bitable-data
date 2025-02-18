@@ -1,6 +1,6 @@
 package com.harmony.bitable.filter.dsl
 
-import com.harmony.bitable.BititySourceImpl
+import com.harmony.bitable.BitableSource
 import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.Predicate
 
@@ -8,7 +8,8 @@ class FilterBuilder<T : Any>(private val rootType: Class<T>) {
 
     companion object {
 
-        private val globalBititySource = BititySourceImpl()
+        // FIXME NPE
+        private val globalBititySource: BitableSource = null!!
 
         fun buildNameProvider(rootType: Class<*>): NameProvider {
             val bitity = globalBititySource.getBitity(rootType)

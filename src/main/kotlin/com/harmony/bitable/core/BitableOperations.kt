@@ -12,40 +12,44 @@ import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReqBody
  */
 interface BitableOperations {
 
-    fun <T : Any> insert(objectToInsert: T): T
+    fun <T : Any> insert(instance: T): T
 
-    fun <T : Any> insertBatch(type: Class<T>, objectsToInsert: Iterable<T>): Iterable<T>
+    fun <T : Any> insertBatch(instances: Iterable<T>, domainType: Class<T>): Iterable<T>
 
-    fun <T : Any> update(objectToUpdate: T): T
+    fun <T : Any> update(instance: T): T
 
-    fun delete(type: Class<*>)
+    fun <T : Any> deleteAll(domainType: Class<T>)
 
-    fun <T : Any> delete(objectToDelete: T): T
+    fun <T : Any> delete(instance: T): T
 
-    fun <T : Any> delete(id: Any, type: Class<T>): T
+    fun <T : Any> deleteById(recordId: String, domainType: Class<T>): T
 
-    fun <T : Any> findById(id: Any, type: Class<T>): T?
+    fun <T : Any> deleteAllById(recordIds: Iterable<String>, domainType: Class<T>);
 
-    fun <T : Any> findAll(type: Class<T>): Iterable<T> = scan(type).toElementList()
+    fun <T : Any> findById(recordId: String, domainType: Class<T>): T?
+
+    fun <T : Any> findAll(domainType: Class<T>): Iterable<T> = scan(domainType).toElementList()
+
+    fun <T : Any> findAllById(recordIds: Iterable<String>, domainType: Class<T>): Iterable<T>
+
+    fun <T : Any> findOne(
+        domainType: Class<T>,
+        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }
+    ): T?
+
+    fun <T : Any> findFirst(
+        domainType: Class<T>,
+        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }
+    ): T? = scan(domainType, Pageable(1), searchCustomizer).firstElementOrNull()
 
     fun <T : Any> scan(
-        type: Class<T>,
+        domainType: Class<T>,
         pageable: Pageable = Pageable(),
         searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }
     ): PageCursor<T>
 
-    fun <T : Any> getOne(
-        type: Class<T>,
-        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }
-    ): T
-
-    fun <T : Any> findFirst(
-        type: Class<T>,
-        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }
-    ): T? = scan(type, Pageable(1), searchCustomizer).firstElementOrNull()
-
     fun <T : Any> count(
-        type: Class<T>,
+        domainType: Class<T>,
         searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }
     ): Long
 

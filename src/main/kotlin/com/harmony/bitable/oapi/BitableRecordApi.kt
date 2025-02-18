@@ -89,8 +89,18 @@ interface BitableRecordApi {
     @RateLimiter(name = "bitable-record-search")
     fun search(
         address: BitableAddress,
-        pageable: Pageable = Pageable(),
         customizer: ((SearchAppTableRecordReq.Builder, SearchAppTableRecordReqBody.Builder) -> Unit) = { _, _ -> }
+    ): PageCursor<AppTableRecord>
+
+    /**
+     * 搜索记录
+     * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.search
+     */
+    @RateLimiter(name = "bitable-record-search")
+    fun search(
+        address: BitableAddress,
+        pageable: Pageable,
+        customizer: (SearchAppTableRecordReq.Builder, SearchAppTableRecordReqBody.Builder) -> Unit
     ): PageCursor<AppTableRecord>
 
     /**

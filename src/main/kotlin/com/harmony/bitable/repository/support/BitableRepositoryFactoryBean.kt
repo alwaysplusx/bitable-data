@@ -1,6 +1,5 @@
 package com.harmony.bitable.repository.support
 
-import com.harmony.bitable.core.BitableEntityInformation
 import com.harmony.bitable.core.BitableOperations
 import com.harmony.bitable.mapping.BitableMappingContext
 import com.harmony.bitable.mapping.BitablePersistentEntity
@@ -11,11 +10,11 @@ import org.springframework.data.repository.core.RepositoryMetadata
 import org.springframework.data.repository.core.support.RepositoryFactoryBeanSupport
 import org.springframework.data.repository.core.support.RepositoryFactorySupport
 
-class BitableRepositoryFactoryBean<T : BitableRepository<S, ID>, S : Any, ID>(
+class BitableRepositoryFactoryBean<T : BitableRepository<S>, S : Any>(
     repositoryInterface: Class<T>,
     private val bitableOperations: BitableOperations,
     private val mappingContext: BitableMappingContext,
-) : RepositoryFactoryBeanSupport<T, S, ID>(repositoryInterface) {
+) : RepositoryFactoryBeanSupport<T, S, String>(repositoryInterface) {
 
     override fun createRepositoryFactory(): RepositoryFactorySupport {
         return BitableRepositoryFactory(bitableOperations, mappingContext)
@@ -27,8 +26,9 @@ class BitableRepositoryFactoryBean<T : BitableRepository<S, ID>, S : Any, ID>(
     ) : RepositoryFactorySupport() {
 
         override fun <T : Any, ID> getEntityInformation(domainClass: Class<T>): EntityInformation<T, ID> {
-            val persistentEntity = mappingContext.getRequiredPersistentEntity(domainClass)
-            return BitableEntityInformation(persistentEntity as BitablePersistentEntity<T>)
+            val persistentEntity =
+                mappingContext.getRequiredPersistentEntity(domainClass) as BitablePersistentEntity<T>
+            return BitableEntityInformation(persistentEntity) as EntityInformation<T, ID>
         }
 
         override fun getTargetRepository(metadata: RepositoryInformation): Any {
@@ -41,6 +41,5 @@ class BitableRepositoryFactoryBean<T : BitableRepository<S, ID>, S : Any, ID>(
         }
 
     }
-
 
 }

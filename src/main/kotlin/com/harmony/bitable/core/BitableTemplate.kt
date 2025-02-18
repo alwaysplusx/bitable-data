@@ -23,29 +23,23 @@ class BitableTemplate(
     private val bitableConverter: BitableConverter,
 ) : BitableOperations {
 
-    override fun <T : Any> insert(objectToInsert: T): T {
-        val persistentEntity = getPersistentEntity(objectToInsert)
-        val record = convertToRecord(objectToInsert)
+    override fun <T : Any> insert(instance: T): T {
+        val persistentEntity = getPersistentEntity(instance)
+        val record = convertToRecord(instance)
         val insertedRecord = bitableRecordApi.create(persistentEntity.getBitableAddress(), record)
         return convertToEntity(insertedRecord, persistentEntity)
     }
 
-    override fun <T : Any> insertBatch(type: Class<T>, objectsToInsert: Iterable<T>): Iterable<T> {
-        val persistentEntity = getPersistentEntity(type)
-        val records = objectsToInsert.map { convertToRecord(it) }
+    override fun <T : Any> insertBatch(instances: Iterable<T>, domainType: Class<T>): Iterable<T> {
+        val persistentEntity = getPersistentEntity(domainType)
+        val records = instances.map { convertToRecord(it) }
         val address = persistentEntity.getBitableAddress()
         return bitableRecordApi.batchCreate(address, records).map { convertToEntity(it, persistentEntity) }.toList()
     }
 
-    override fun <T : Any> update(objectToUpdate: T): T {
-        val persistentEntity = getPersistentEntity(objectToUpdate)
-        val recordId: String? = persistentEntity.getRecordIdAccessor(objectToUpdate).getRecordId()
-        if (recordId != null) {
-            return updateByRecordId(recordId, objectToUpdate)
-        }
-        val id: Any = persistentEntity.getIdentifierAccessor(objectToUpdate as Any).identifier
-            ?: throw IllegalStateException("id must not be null")
-        return updateById(id, objectToUpdate)
+    override fun <T : Any> update(instance: T): T {
+        val recordId = getRecordId(instance) ?: throw IllegalStateException("recordId must not be null")
+        return updateByRecordId(recordId, instance)
     }
 
     private fun <T : Any> updateById(id: Any, objectToUpdate: T): T {
@@ -66,8 +60,8 @@ class BitableTemplate(
         return convertToEntity(updatedRecord, persistentEntity)
     }
 
-    override fun delete(type: Class<*>) {
-        val persistentEntity = getPersistentEntity(type)
+    override fun <T : Any> deleteAll(domainType: Class<T>) {
+        val persistentEntity = getPersistentEntity(domainType)
         bitableRecordApi.search(persistentEntity.getBitableAddress())
             .steamOfElements()
             .forEach {
@@ -75,22 +69,23 @@ class BitableTemplate(
             }
     }
 
-    override fun <T : Any> delete(objectToDelete: T): T {
-        val persistentEntity = getPersistentEntity(objectToDelete)
-        val recordId = persistentEntity.getRecordIdAccessor(objectToDelete).getRecordId()
-        if (recordId != null) {
-            return deleteByRecordId(recordId, persistentEntity)
-        }
-        val id = persistentEntity.getIdentifierAccessor(objectToDelete as Any).identifier
-            ?: throw IllegalStateException("id must not be null")
-        return deleteById(id, persistentEntity)
+    override fun <T : Any> delete(instance: T): T {
+        val persistentEntity = getPersistentEntity(instance)
+        val recordId = getRecordId(instance) ?: throw IllegalStateException("recordId must not be null")
+        return deleteByRecordId(recordId, persistentEntity)
     }
 
-    override fun <T : Any> delete(id: Any, type: Class<T>) = deleteById(id, getPersistentEntity(type))
+    override fun <T : Any> deleteById(recordId: String, domainType: Class<T>) =
+        deleteById(recordId, getPersistentEntity(domainType))
 
-    private fun <T : Any> deleteById(id: Any, persistentEntity: BitablePersistentEntity<T>): T {
+    override fun <T : Any> deleteAllById(recordIds: Iterable<String>, domainType: Class<T>) {
+        val persistentEntity = getPersistentEntity(domainType)
+        // TODO 批量删除
+    }
+
+    private fun <T : Any> deleteById(id: String, persistentEntity: BitablePersistentEntity<T>): T {
         if (persistentEntity.requiredIdProperty.isRecordIdProperty()) {
-            return deleteByRecordId(id.toString(), persistentEntity)
+            return deleteByRecordId(id, persistentEntity)
         }
         val record = getRecordById(id, persistentEntity)
         return deleteByRecord(record, persistentEntity)
@@ -102,34 +97,43 @@ class BitableTemplate(
         return deleteByRecord(record, persistentEntity)
     }
 
-    private fun <T : Any> deleteByRecord(record: AppTableRecord, persistentEntity: BitablePersistentEntity<T>): T {
+    private fun <T : Any> deleteByRecord(
+        record: AppTableRecord,
+        persistentEntity: BitablePersistentEntity<T>
+    ): T {
         bitableRecordApi.delete(persistentEntity.getBitableAddress(), record.recordId)
         return convertToEntity(record, persistentEntity)
     }
 
     override fun <T : Any> count(
-        type: Class<T>,
+        domainType: Class<T>,
         searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit
     ): Long {
-        val persistentEntity = getPersistentEntity(type)
+        val persistentEntity = getPersistentEntity(domainType)
         return bitableRecordApi.count(persistentEntity.getBitableAddress(), searchCustomizer).toLong()
     }
 
-    override fun <T : Any> findById(id: Any, type: Class<T>): T? {
-        val persistentEntity = getPersistentEntity(type)
+    override fun <T : Any> findById(recordId: String, domainType: Class<T>): T? {
+        val persistentEntity = getPersistentEntity(domainType)
         if (persistentEntity.requiredIdProperty.isRecordIdProperty()) {
-            return findByRecordId(id.toString(), persistentEntity)
+            return findByRecordId(recordId, persistentEntity)
         }
-        val record = getRecordById(id, persistentEntity)
+        val record = getRecordById(recordId, persistentEntity)
         return convertToEntity(record, persistentEntity)
     }
 
+    override fun <T : Any> findAllById(recordIds: Iterable<String>, domainType: Class<T>): Iterable<T> {
+        val persistentEntity = getPersistentEntity(domainType)
+        return bitableRecordApi.batchGet(persistentEntity.getBitableAddress(), recordIds.toList())
+            .map { convertToEntity(it, persistentEntity) }
+    }
+
     override fun <T : Any> scan(
-        type: Class<T>,
+        domainType: Class<T>,
         pageable: Pageable,
         searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit
     ): PageCursor<T> {
-        val persistentEntity = getPersistentEntity(type)
+        val persistentEntity = getPersistentEntity(domainType)
         return bitableRecordApi.search(
             persistentEntity.getBitableAddress(),
             pageable,
@@ -137,11 +141,11 @@ class BitableTemplate(
         ).convert { convertToEntity(it, persistentEntity) }
     }
 
-    override fun <T : Any> getOne(
-        type: Class<T>,
+    override fun <T : Any> findOne(
+        domainType: Class<T>,
         searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit
     ): T {
-        val persistentEntity = getPersistentEntity(type)
+        val persistentEntity = getPersistentEntity(domainType)
         val record = getUniqueRecord(persistentEntity, searchCustomizer)
         return convertToEntity(record, persistentEntity)
     }
@@ -195,6 +199,11 @@ class BitableTemplate(
             throw IncorrectResultSizeDataAccessException(1, matchedPageSlice.total())
         }
         return matchedPageSlice.firstElement()
+    }
+
+    private fun getRecordId(instance: Any): String? {
+        // TODO get record id from instance
+        return null
     }
 
     private fun <R> getPersistentEntity(cls: Class<R>): BitablePersistentEntity<R> {

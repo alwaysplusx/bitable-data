@@ -12,7 +12,7 @@ import com.lark.oapi.service.bitable.v1.model.*
  * 多维表格行数据管理(增删改查)
  * @author wuxin
  */
-class BitableRecordApiImpl(client: Client, private val pageSize: Int = 20) : BitableRecordApi {
+class BitableRecordApiImpl(client: Client, private val defaultPageSize: Int = 20) : BitableRecordApi {
 
     private val appTableRecordClient = client.bitable().appTableRecord()
 
@@ -136,7 +136,13 @@ class BitableRecordApiImpl(client: Client, private val pageSize: Int = 20) : Bit
 
     override fun search(
         address: BitableAddress,
-        pageable: Pageable, customizer: (SearchAppTableRecordReq.Builder, SearchAppTableRecordReqBody.Builder) -> Unit
+        customizer: (SearchAppTableRecordReq.Builder, SearchAppTableRecordReqBody.Builder) -> Unit
+    ) = search(address, Pageable(defaultPageSize), customizer)
+
+    override fun search(
+        address: BitableAddress,
+        pageable: Pageable,
+        customizer: (SearchAppTableRecordReq.Builder, SearchAppTableRecordReqBody.Builder) -> Unit
     ): PageCursor<AppTableRecord> {
         val requestBuilder = SearchAppTableRecordReq.newBuilder()
         val bodyBuilder = SearchAppTableRecordReqBody.newBuilder()

@@ -16,4 +16,4 @@ fun main(vararg args: String) {
 }
 
 @Repository
-interface BookRepository : BitableRepository<Book, String>
+interface BookRepository : BitableRepository<Book>

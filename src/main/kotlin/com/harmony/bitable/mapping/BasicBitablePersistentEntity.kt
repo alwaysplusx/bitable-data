@@ -1,14 +1,14 @@
 package com.harmony.bitable.mapping
 
+import com.harmony.bitable.Bitable
 import com.harmony.bitable.Bitity
 import com.harmony.bitable.BitityField
-import com.harmony.bitable.Bitable
 import org.springframework.data.mapping.MappingException
 import org.springframework.data.mapping.model.BasicPersistentEntity
 import org.springframework.data.mapping.model.Property
 import org.springframework.data.util.TypeInformation
 
-internal class BitablePersistentEntityImpl<T : Any>(
+internal class BasicBitablePersistentEntity<T>(
     typeInformation: TypeInformation<T>,
     private val bitable: Bitable,
     private val bitity: Bitity<T>,

@@ -13,4 +13,10 @@ interface BitableSource {
      */
     fun getBitable(name: String): Bitable
 
+    /**
+     * 将 type 以实体的方式解析
+     * @param type must be annotated with @Bitable
+     */
+    fun <T> getBitity(type: Class<T>): Bitity<T>
+
 }

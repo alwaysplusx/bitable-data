@@ -1,13 +1,10 @@
 package com.harmony.bitable.autoconfigure
 
 import com.harmony.bitable.BitableSource
-import com.harmony.bitable.BitableSourceImpl
-import com.harmony.bitable.BititySource
-import com.harmony.bitable.BititySourceImpl
+import com.harmony.bitable.DefaultBitableSource
 import com.harmony.bitable.convert.MappingBitableConverter
 import com.harmony.bitable.core.BitableTemplate
 import com.harmony.bitable.mapping.BitableMappingContext
-import com.harmony.bitable.mapping.BitableMappingContextImpl
 import com.harmony.bitable.oapi.BitableApi
 import com.harmony.bitable.oapi.BitableRecordApi
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
@@ -28,22 +25,21 @@ import org.springframework.data.mapping.model.EntityInstantiators
 class BitableRepositoryAutoConfiguration(private val properties: BitableProperties) {
 
     @Bean
-    @ConditionalOnMissingBean(BititySource::class)
-    fun bititySource(): BititySource = BititySourceImpl()
-
-    @Bean
     @ConditionalOnProperty(prefix = "bitable", name = ["app-token"])
     @ConditionalOnMissingBean(BitableSource::class)
-    fun bitableSource(bitableApi: BitableApi): BitableSource = BitableSourceImpl(properties.appToken, bitableApi)
-
-    @Bean
-    @DependsOn(value = ["bititySource", "bitableSource"])
-    @ConditionalOnMissingBean(BitableMappingContext::class)
-    fun bitableMappingContext(bitableSource: BitableSource, bititySource: BititySource): BitableMappingContext {
-        return BitableMappingContextImpl(bitableSource, bititySource)
+    fun bitableSource(bitableApi: BitableApi): BitableSource {
+        return DefaultBitableSource(properties.appToken, bitableApi)
     }
 
     @Bean
+    @DependsOn("bitableSource")
+    @ConditionalOnMissingBean(BitableMappingContext::class)
+    fun bitableMappingContext(bitableSource: BitableSource): BitableMappingContext {
+        return BitableMappingContext(bitableSource)
+    }
+
+    @Bean
+    @DependsOn("bitableMappingContext")
     @ConditionalOnBean(BitableRecordApi::class)
     @ConditionalOnMissingBean(BitableTemplate::class)
     fun bitableTemplate(

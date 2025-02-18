@@ -2,6 +2,7 @@ package com.harmony.bitable.utils
 
 import com.harmony.bitable.BitfieldType
 import com.harmony.bitable.BitfieldType.*
+import com.harmony.bitable.annotations.BitId
 import com.harmony.bitable.annotations.Bitdex
 import com.harmony.bitable.annotations.Bitfield
 import com.lark.oapi.service.bitable.v1.model.Attachment
@@ -11,7 +12,6 @@ import com.lark.oapi.service.bitable.v1.model.Url
 import org.springframework.beans.BeanUtils
 import org.springframework.core.annotation.AnnotatedElementUtils.getMergedAnnotation
 import org.springframework.core.annotation.AnnotationUtils
-import org.springframework.data.annotation.Id
 import org.springframework.data.mapping.model.Property
 import org.springframework.data.util.Optionals
 import org.springframework.data.util.TypeInformation
@@ -54,12 +54,6 @@ object BitityUtils {
         Location::class.java to LOCATION
     )
 
-    private val DEFAULT_FIELD_FILTER: (Field) -> Boolean = {
-        !Modifier.isStatic(it.modifiers)
-                && !Modifier.isFinal(it.modifiers)
-                && containsAny(it, Bitfield::class.java, Bitdex::class.java, Id::class.java)
-    }
-
     private val DEFAULT_ANNOTATION_FILTER: (Annotation) -> Boolean = {
         it.annotationClass.java.name.startsWith("com.harmony.bitable.annotations")
     }
@@ -81,38 +75,30 @@ object BitityUtils {
         return null
     }
 
-    fun getProperties(type: Class<*>, fieldFilter: (Field) -> Boolean = DEFAULT_FIELD_FILTER): List<Property> {
+    fun getBitityFields(type: Class<*>): List<Property> {
         val rawType = ClassUtils.getUserClass(type)
         val descriptors = BeanUtils.getPropertyDescriptors(rawType).associateBy { it.name }
         val typeInformation = TypeInformation.of(rawType)
 
         val result = mutableListOf<Property>()
-
         ReflectionUtils.doWithFields(type, {
-
             ReflectionUtils.makeAccessible(it)
             val descriptor = descriptors[it.name]
-
-            result.add(
-                if (descriptor != null)
-                    Property.of(typeInformation, it, descriptor)
-                else
-                    Property.of(typeInformation, it)
-            )
-
-        }, fieldFilter)
-
+            val property = if (descriptor != null)
+                Property.of(typeInformation, it, descriptor)
+            else
+                Property.of(typeInformation, it)
+            result.add(property)
+        }, BitityUtils::isBitfield)
         return result
     }
 
-    fun getPropertyAnnotations(
-        property: Property,
-        annotationFilter: (Annotation) -> Boolean = DEFAULT_ANNOTATION_FILTER,
-    ): PropertyAnnotations {
+    fun getPropertyBitityAnnotations(property: Property): PropertyAnnotations {
         val result = mutableMapOf<Class<*>, Annotation>()
+        getBitityAnnotations(property.field.get())
 
         Optionals.toStream(property.setter, property.getter, property.field).forEach { annotationElement ->
-            val annotations = getAnnotations(annotationElement, annotationFilter)
+            val annotations = getBitityAnnotations(annotationElement)
             annotations.forEach { annotation ->
                 val annotationType = annotation.annotationClass.java
                 if (result.containsKey(annotationType)) {
@@ -125,10 +111,20 @@ object BitityUtils {
         return PropertyAnnotations(result)
     }
 
-    private fun getAnnotations(annotatedElement: AnnotatedElement, annotationFilter: (Annotation) -> Boolean) =
+    private fun getBitityAnnotations(annotatedElement: AnnotatedElement) =
         annotatedElement.annotations
-            .filter(annotationFilter)
+            .filter(BitityUtils::isBitityAnnotation)
             .map { getMergedAnnotation(annotatedElement, it.annotationClass.java)!! }
+
+    private fun isBitfield(field: Field): Boolean {
+        return !Modifier.isStatic(field.modifiers)
+                && !Modifier.isFinal(field.modifiers)
+                && containsAny(field, Bitfield::class.java, Bitdex::class.java, BitId::class.java)
+    }
+
+    private fun isBitityAnnotation(annotation: Annotation): Boolean {
+        return annotation.annotationClass.java.name.startsWith("com.harmony.bitable.annotations")
+    }
 
     class PropertyAnnotations(private val annotations: Map<Class<*>, Annotation>) {
 

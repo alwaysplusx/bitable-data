@@ -6,7 +6,6 @@ import org.springframework.data.mapping.model.Property
 import org.springframework.util.ReflectionUtils.invokeMethod
 import org.springframework.util.ReflectionUtils.makeAccessible
 import java.lang.invoke.SerializedLambda
-import java.lang.reflect.Modifier
 import kotlin.jvm.internal.CallableReference
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty1
@@ -53,9 +52,7 @@ object NameFunctionUtils {
 
     private fun getTypeProperties(type: Class<*>): List<Property> {
         return typePropertiesMap.computeIfAbsent(type) {
-            BitityUtils.getProperties(type) {
-                !Modifier.isStatic(it.modifiers) && !Modifier.isFinal(it.modifiers)
-            }
+            BitityUtils.getBitityFields(type)
         }
     }
 
