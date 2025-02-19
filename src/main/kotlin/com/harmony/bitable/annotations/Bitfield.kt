@@ -1,7 +1,7 @@
 package com.harmony.bitable.annotations
 
 import com.harmony.bitable.BitfieldType
-import com.harmony.bitable.convert.bitval.BitvalReader
+import com.harmony.bitable.convert.BitvalConverter
 import org.springframework.core.annotation.AliasFor
 import kotlin.annotation.AnnotationRetention.RUNTIME
 import kotlin.annotation.AnnotationTarget.*
@@ -33,6 +33,6 @@ annotation class Bitfield(
     /**
      * 自定义 converter
      */
-    val converter: KClass<out BitvalReader> = BitvalReader::class
+    val converter: KClass<out BitvalConverter> = BitvalConverter::class
 
 )

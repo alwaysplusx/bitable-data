@@ -1,7 +1,7 @@
-package com.harmony.bitable.convert.bitval.impl
+package com.harmony.bitable.convert.bitval
 
 import com.harmony.bitable.BitfieldType
-import com.harmony.bitable.convert.bitval.BitvalReader
+import com.harmony.bitable.convert.BitvalConverter
 import com.harmony.bitable.mapping.BitablePersistentProperty
 import com.harmony.bitable.oapi.getPropertyValue
 import com.lark.oapi.service.bitable.v1.model.AppTableRecord
@@ -11,12 +11,12 @@ import com.lark.oapi.service.bitable.v1.model.Group
 /**
  * @author wuxin
  */
-class GroupBitvalReader : BitvalReader {
+class GroupConverter : BitvalConverter {
     override fun canRead(property: BitablePersistentProperty): Boolean {
         return property.getBitfieldType() == BitfieldType.GROUP || property.type.isAssignableFrom(Group::class.java)
     }
 
-    override fun read(property: BitablePersistentProperty, record: AppTableRecord): Any? {
+    override fun readAndConvert(property: BitablePersistentProperty, record: AppTableRecord): Any? {
         val value = record.getPropertyValue(property)
         val groups = ValueConverters.convertArray(value, Group::class.java) ?: return null
         return when {

@@ -33,7 +33,7 @@ class BitableTemplate(
         val persistentEntity = getPersistentEntity(domainType)
         val records = instances.map { convertToRecord(it) }
         val address = persistentEntity.getBitableAddress()
-        return bitableRecordApi.batchCreate(address, records).map { convertToEntity(it, persistentEntity) }.toList()
+        return bitableRecordApi.batchCreate(address, records).map { convertToEntity(it, persistentEntity) }
     }
 
     override fun <T : Any> update(instance: T): T {

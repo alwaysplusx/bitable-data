@@ -1,4 +1,4 @@
-package com.harmony.bitable.convert.bitval.impl
+package com.harmony.bitable.convert.bitval
 
 import com.google.gson.reflect.TypeToken
 import com.lark.oapi.core.utils.Jsons

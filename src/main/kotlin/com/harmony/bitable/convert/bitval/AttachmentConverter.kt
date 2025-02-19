@@ -1,7 +1,7 @@
-package com.harmony.bitable.convert.bitval.impl
+package com.harmony.bitable.convert.bitval
 
 import com.harmony.bitable.BitfieldType
-import com.harmony.bitable.convert.bitval.BitvalReader
+import com.harmony.bitable.convert.BitvalConverter
 import com.harmony.bitable.mapping.BitablePersistentProperty
 import com.harmony.bitable.oapi.getPropertyValue
 import com.lark.oapi.service.bitable.v1.model.AppTableRecord
@@ -10,13 +10,13 @@ import com.lark.oapi.service.bitable.v1.model.Attachment
 /**
  * @author wuxin
  */
-class AttachmentBitvalReader : BitvalReader {
+class AttachmentConverter : BitvalConverter {
 
     override fun canRead(property: BitablePersistentProperty): Boolean {
         return property.getBitfieldType() == BitfieldType.ATTACHMENT
     }
 
-    override fun read(property: BitablePersistentProperty, record: AppTableRecord): Any? {
+    override fun readAndConvert(property: BitablePersistentProperty, record: AppTableRecord): Any? {
         val value = record.getPropertyValue(property)
         val attachments = ValueConverters.convertArray(value, Attachment::class.java) ?: return null
         return when {
