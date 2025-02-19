@@ -1,6 +1,5 @@
-package com.harmony.bitable.example.domain
+package com.harmony.bitable
 
-import com.harmony.bitable.BitfieldType
 import com.harmony.bitable.annotations.BitId
 import com.harmony.bitable.annotations.Bitable
 import com.harmony.bitable.annotations.Bitfield

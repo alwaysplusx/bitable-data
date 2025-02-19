@@ -1,6 +1,5 @@
-package com.harmony.bitable.example
+package com.harmony.bitable
 
-import com.harmony.bitable.oapi.cursor.steamOfElements
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -20,7 +19,7 @@ class BookApplicationTests {
 
     @Test
     fun test() {
-        bookRepository.scan().steamOfElements().forEach {
+        bookRepository.search().steamOfElements().forEach {
             println("Book: id=${it.id} name=${it.name}")
         }
     }
