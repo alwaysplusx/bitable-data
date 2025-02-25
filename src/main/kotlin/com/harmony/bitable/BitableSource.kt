@@ -7,6 +7,11 @@ package com.harmony.bitable
 interface BitableSource {
 
     /**
+     * 数据源飞书多维表格 appToken
+     */
+    fun getAppToken(): String
+
+    /**
      * 依据表名获取飞书表格信息
      *
      * @param name table name

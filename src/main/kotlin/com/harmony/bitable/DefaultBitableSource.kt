@@ -18,6 +18,8 @@ class DefaultBitableSource(private val appToken: String, private val bitableApi:
 
     private val bitityCache = mutableMapOf<Class<*>, Bitity<*>>()
 
+    override fun getAppToken() = appToken
+
     override fun getBitable(name: String) = bitableApi.getBitable(appToken, name)
 
     override fun <T> getBitity(type: Class<T>): Bitity<T> {
