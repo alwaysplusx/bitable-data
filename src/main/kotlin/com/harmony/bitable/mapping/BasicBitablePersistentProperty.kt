@@ -25,4 +25,6 @@ internal class BasicBitablePersistentProperty(
 
     override fun isRecordIdProperty(): Boolean = field.isRecordIdField
 
+    override fun isReadonly(): Boolean = field.isReadonly
+
 }

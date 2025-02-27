@@ -46,7 +46,7 @@ class MappingBitableConverter(
         val accessor = persistentEntity.getPropertyAccessor(source)
 
         sink.fields = mutableMapOf()
-        persistentEntity.forEach {
+        persistentEntity.filter { !it.isReadonly() }.forEach {
             val fieldValue = bitfieldConverter.readAndConvertPropertyValueFromAccessor(it, accessor)
             if (it.isRecordIdProperty()) {
                 sink.recordId = fieldValue?.toString()

@@ -29,4 +29,9 @@ interface BitablePersistentProperty : PersistentProperty<BitablePersistentProper
      */
     fun isRecordIdProperty(): Boolean
 
+    /**
+     * 是否是只读列
+     */
+    fun isReadonly(): Boolean
+
 }

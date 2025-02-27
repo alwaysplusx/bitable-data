@@ -8,6 +8,7 @@ data class BitityField(
     val fieldType: BitfieldType,
     val property: Property,
     val isRecordIdField: Boolean,
+    val isReadonly: Boolean,
 ) {
 
     constructor(fieldId: String, source: BitityField) : this(
@@ -15,7 +16,8 @@ data class BitityField(
         fieldName = source.fieldName,
         fieldType = source.fieldType,
         property = source.property,
-        isRecordIdField = source.isRecordIdField
+        isRecordIdField = source.isRecordIdField,
+        isReadonly = source.isReadonly
     )
 
     override fun toString(): String {

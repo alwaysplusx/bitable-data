@@ -50,7 +50,8 @@ class DefaultBitableSource(private val appToken: String, private val bitableApi:
             fieldName = resolveFieldName(bitfieldAnnotation, property),
             fieldType = resolveFieldType(bitfieldAnnotation, property),
             property = property,
-            isRecordIdField = bitIdAnnotation != null
+            isRecordIdField = bitIdAnnotation != null,
+            isReadonly = bitfieldAnnotation?.readonly ?: false
         )
     }
 

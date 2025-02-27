@@ -31,6 +31,11 @@ annotation class Bitfield(
     val type: BitfieldType = BitfieldType.AUTO,
 
     /**
+     * 是否只读
+     */
+    val readonly: Boolean = false,
+
+    /**
      * 自定义 converter
      */
     val converter: KClass<out BitvalConverter> = BitvalConverter::class
