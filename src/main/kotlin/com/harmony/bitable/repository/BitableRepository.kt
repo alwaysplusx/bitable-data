@@ -9,6 +9,8 @@ interface BitableRepository<T : Any> : CrudRepository<T, String> {
 
     fun <S : T> update(entity: S): S
 
+    fun getOneById(id: String): T
+
     fun getOne(filterCustomizer: FilterCustomizer = FilterCustomizer.NoOpCustomizer): T
 
     fun findFirst(filterCustomizer: FilterCustomizer = FilterCustomizer.NoOpCustomizer): T?

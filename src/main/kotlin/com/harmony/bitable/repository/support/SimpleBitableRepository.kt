@@ -64,6 +64,10 @@ class SimpleBitableRepository<T : Any>(
         }
     }
 
+    override fun getOneById(id: String): T {
+        return findById(id).orElseThrow { IncorrectResultSizeDataAccessException(1, 0) }
+    }
+
     override fun getOne(filterCustomizer: FilterCustomizer): T {
         return bitableOperations.findOne(entityInformation.javaType, filterCustomizer::customize)
             ?: throw IncorrectResultSizeDataAccessException(1, 0)
