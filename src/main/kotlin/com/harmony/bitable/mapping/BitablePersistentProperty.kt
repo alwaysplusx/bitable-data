@@ -11,7 +11,7 @@ import kotlin.reflect.KClass
 interface BitablePersistentProperty : PersistentProperty<BitablePersistentProperty> {
 
     /**
-     * 多维表给列ID
+     * 多维表列ID(如果 recordId 则为空)
      */
     fun getBitfieldId(): String?
 
@@ -29,7 +29,7 @@ interface BitablePersistentProperty : PersistentProperty<BitablePersistentProper
      * 判断是否是多维表格的 [RecordId](https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/bitable/notification#15d8db94) 字段
      *
      */
-    fun isRecordIdProperty(): Boolean
+    fun isRecordId(): Boolean
 
     /**
      * 是否是只读列

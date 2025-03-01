@@ -12,17 +12,9 @@ interface BitableSource {
     fun getAppToken(): String
 
     /**
-     * 依据表名获取飞书表格信息
-     *
-     * @param name table name
-     */
-    @Deprecated("will be inner method")
-    fun getBitable(name: String): Bitable
-
-    /**
      * 将 type 以实体的方式解析
-     * @param type must be annotated with @Bitable
+     * @param domainType must be annotated with @Bitable
      */
-    fun <T> getBitity(type: Class<T>): Bitity<T>
+    fun <T> getBitity(domainType: Class<T>): Bitity<T>
 
 }

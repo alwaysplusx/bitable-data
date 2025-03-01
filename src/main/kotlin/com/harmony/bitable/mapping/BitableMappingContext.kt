@@ -22,8 +22,7 @@ class BitableMappingContext(private val bitableSource: BitableSource) :
 
     override fun <T> createPersistentEntity(typeInformation: TypeInformation<T>): BitablePersistentEntity<*> {
         val bitity = bitableSource.getBitity(typeInformation.type)
-        val bitable = bitableSource.getBitable(bitity.name)
-        return BasicBitablePersistentEntity(typeInformation, bitable, bitity)
+        return BasicBitablePersistentEntity(typeInformation, bitity)
     }
 
     override fun createPersistentProperty(

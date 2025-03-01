@@ -3,11 +3,12 @@ package com.harmony.bitable
 import com.harmony.bitable.annotations.BitId
 import com.harmony.bitable.convert.BitvalConverter
 import com.harmony.bitable.oapi.BitableApi
+import com.harmony.bitable.oapi.getBitableType
 import com.harmony.bitable.utils.BitityUtils
-import com.harmony.bitable.utils.BitityUtils.getBitfieldType
 import org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation
 import org.springframework.data.mapping.model.Property
 import org.springframework.util.ClassUtils
+import java.lang.reflect.AnnotatedElement
 
 typealias BitableAnnotation = com.harmony.bitable.annotations.Bitable
 typealias BitfieldAnnotation = com.harmony.bitable.annotations.Bitfield
@@ -17,60 +18,76 @@ typealias BitfieldAnnotation = com.harmony.bitable.annotations.Bitfield
  */
 class DefaultBitableSource(private val appToken: String, private val bitableApi: BitableApi) : BitableSource {
 
+    companion object {
+        private val NULLABLE_BITFIELD_TYPES = setOf(
+            BitfieldType.CREATED_AT, BitfieldType.CREATED_BY,
+            BitfieldType.UPDATED_AT, BitfieldType.UPDATED_BY
+        )
+    }
+
     private val bitityCache = mutableMapOf<Class<*>, Bitity<*>>()
 
     override fun getAppToken() = appToken
 
-    override fun getBitable(name: String) = bitableApi.getBitable(appToken, name)
-
-    override fun <T> getBitity(type: Class<T>): Bitity<T> {
-        val rowType = ClassUtils.getUserClass(type)
-        return bitityCache.computeIfAbsent(rowType) { doBuildBitity(it) } as Bitity<T>
+    override fun <T> getBitity(domainType: Class<T>): Bitity<T> {
+        val rawDomainType = ClassUtils.getUserClass(domainType)
+        val bitableName = resolveBitableName(rawDomainType)
+        return bitityCache.computeIfAbsent(rawDomainType) { doBuildBitity(bitableName, it) } as Bitity<T>
     }
 
-    private fun <T> doBuildBitity(type: Class<T>): Bitity<T> {
-        val bitableAnnotation = findBitableAnnotation(type)
-            ?: throw IllegalStateException("$type not have @Bitable annotation")
-        val bitableName = bitableAnnotation.name.ifBlank { type.simpleName }
-        val bitfields = BitityUtils.getBitityFields(type).map { parseBitityField(it) }
-        if (bitfields.none { it.isRecordIdField }) {
+    private fun <T> doBuildBitity(bitableName: String, type: Class<T>): Bitity<T> {
+        val bitable = bitableApi.getBitable(appToken, bitableName)
+        val fields = BitityUtils.getBitityFields(type).map {
+            resolveAsBitityField(it, bitable)
+        }
+        if (fields.none { it.isRecordId }) {
             throw IllegalStateException("$type not have any field with @BitId")
         }
-        return Bitity(name = bitableName, type = type, fields = bitfields)
-    }
-
-    private fun parseBitityField(property: Property): BitityField {
-        if (property.field.isEmpty) {
-            throw IllegalStateException("field ${property.name} not found")
-        }
-        val field = property.field.get()
-        val bitfieldAnnotation = findMergedAnnotation(field, BitfieldAnnotation::class.java)
-        val bitIdAnnotation = findMergedAnnotation(field, BitId::class.java)
-        return BitityField(
-            fieldId = null,
-            fieldName = resolveFieldName(bitfieldAnnotation, property),
-            fieldType = resolveFieldType(bitfieldAnnotation, property),
-            property = property,
-            isRecordIdField = bitIdAnnotation != null,
-            isReadonly = bitfieldAnnotation?.readonly ?: false,
-            customizeConverter = bitfieldAnnotation?.converter ?: BitvalConverter::class
+        return Bitity(
+            name = bitableName,
+            type = type,
+            address = bitable.address,
+            fields = fields
         )
     }
 
-    private fun resolveFieldType(annotation: BitfieldAnnotation?, property: Property): BitfieldType {
-        if (annotation != null && annotation.type != BitfieldType.AUTO) {
-            return annotation.type
+    private fun resolveAsBitityField(property: Property, bitable: Bitable): BitityField {
+        val field = property.field.orElseThrow { throw IllegalStateException("field ${property.name} not found") }
+        val bitfield = findAnnotation(field, BitfieldAnnotation::class.java)
+        val isRecordId = findAnnotation(field, BitId::class.java) != null
+        val fieldName = resolveFieldName(bitfield, property)
+        val appField = bitable.getField(fieldName)
+        val expectType = bitfield?.type ?: BitfieldType.AUTO
+        if (appField == null && isAllowedAppFieldNotEmpty(isRecordId, expectType)) {
+            throw IllegalStateException("$fieldName not found in table ${bitable.name}")
         }
-        return getBitfieldType(property.type)
-            ?: throw IllegalStateException("${property.type.simpleName} not have default bitfield type")
+        return BitityField(
+            fieldName = fieldName,
+            fieldType = appField?.getBitableType() ?: expectType,
+            isRecordId = isRecordId,
+            isReadonly = bitfield?.readonly ?: false,
+            customizeConverter = bitfield?.converter ?: BitvalConverter::class,
+            property = property,
+            appField = appField
+        )
+    }
+
+    private fun resolveBitableName(domainType: Class<*>): String {
+        val bitable = findAnnotation(domainType, BitableAnnotation::class.java)
+            ?: throw IllegalStateException("$domainType not have @Bitable annotation")
+        return bitable.name.ifBlank { domainType.simpleName }
     }
 
     private fun resolveFieldName(annotation: BitfieldAnnotation?, property: Property): String {
         return (annotation?.name ?: "").ifBlank { property.name }
     }
 
-    private fun findBitableAnnotation(type: Class<*>): BitableAnnotation? {
-        return findMergedAnnotation(ClassUtils.getUserClass(type), BitableAnnotation::class.java)
+    private fun <T : Annotation?> findAnnotation(element: AnnotatedElement, annotationType: Class<T>): T? {
+        return findMergedAnnotation(element, annotationType)
+    }
+
+    private fun isAllowedAppFieldNotEmpty(isRecordId: Boolean, bitfieldType: BitfieldType): Boolean {
+        return !(isRecordId || bitfieldType in NULLABLE_BITFIELD_TYPES)
     }
 
 }

@@ -1,13 +1,18 @@
 package com.harmony.bitable.oapi
 
+import com.harmony.bitable.BitfieldType
 import com.harmony.bitable.mapping.BitablePersistentProperty
 import com.harmony.bitable.oapi.cursor.PageSlice
 import com.lark.oapi.core.response.BaseResponse
+import com.lark.oapi.service.bitable.v1.model.AppTableFieldForList
 import com.lark.oapi.service.bitable.v1.model.AppTableRecord
 
 fun <T> BaseResponse<T>.ensureOk() {
     if (!this.success()) {
-        throw LarkException("lark response not success, for reason $msg. error details $error")
+        throw LarkException(
+            code = this.code,
+            message = "lark response not ok, for reason $msg. details $error"
+        )
     }
 }
 
@@ -24,3 +29,5 @@ fun <T, R> BaseResponse<T>.ensurePage(converter: (T) -> PageSlice<R>): PageSlice
 fun AppTableRecord.getFieldValue(name: String): Any? = this.fields[name]
 
 fun AppTableRecord.getPropertyValue(property: BitablePersistentProperty): Any? = this.fields[property.getBitfieldName()]
+
+fun AppTableFieldForList.getBitableType(): BitfieldType = BitfieldType.entries.first { it.value == this.type }

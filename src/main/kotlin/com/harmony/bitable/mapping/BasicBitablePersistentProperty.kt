@@ -19,13 +19,13 @@ internal class BasicBitablePersistentProperty(
 
     override fun createAssociation() = Association(this, null)
 
-    override fun getBitfieldId(): String? = field.fieldId
+    override fun getBitfieldId(): String? = field.appField?.fieldId
 
     override fun getBitfieldName(): String = field.fieldName
 
     override fun getBitfieldType(): BitfieldType = field.fieldType
 
-    override fun isRecordIdProperty(): Boolean = field.isRecordIdField
+    override fun isRecordId(): Boolean = field.isRecordId
 
     override fun isReadonly(): Boolean = field.isReadonly
 

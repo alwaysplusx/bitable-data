@@ -1,6 +1,5 @@
 package com.harmony.bitable.mapping
 
-import com.harmony.bitable.Bitable
 import com.harmony.bitable.Bitity
 import com.harmony.bitable.BitityField
 import org.springframework.data.mapping.MappingException
@@ -10,7 +9,6 @@ import org.springframework.data.util.TypeInformation
 
 internal class BasicBitablePersistentEntity<T>(
     typeInformation: TypeInformation<T>,
-    private val bitable: Bitable,
     private val bitity: Bitity<T>,
 ) : BasicPersistentEntity<T, BitablePersistentProperty>(typeInformation),
     BitablePersistentEntity<T> {
@@ -19,7 +17,7 @@ internal class BasicBitablePersistentEntity<T>(
 
     private val fieldNameMapping = mutableMapOf<String, String>()
 
-    override fun getBitableAddress() = bitable.address
+    override fun getBitableAddress() = bitity.address
 
     override fun hasRecordIdProperty() = recordIdProperty != null
 
@@ -33,21 +31,7 @@ internal class BasicBitablePersistentEntity<T>(
     override fun getRecordIdProperty() = recordIdProperty
 
     override fun getField(property: Property): BitityField? {
-        val bitityField: BitityField = bitity.getField(property) ?: return null
-
-        if (bitityField.isRecordIdField) {
-            return bitityField
-        }
-
-        val appTableField = bitable.getField(bitityField.fieldName)
-        if (appTableField.type != bitityField.fieldType.value) {
-            throw IllegalStateException(
-                "${bitityField.fieldName} field type mismatch," +
-                        " require ${bitityField.fieldType.value} but found ${appTableField.type}"
-            )
-        }
-
-        return BitityField(appTableField.fieldId, bitityField)
+        return bitity.getField(property)
     }
 
     override fun getPersistentProperty(name: String): BitablePersistentProperty? {
@@ -64,9 +48,8 @@ internal class BasicBitablePersistentEntity<T>(
 
         fieldNameMapping[property.getBitfieldName()] = property.name
 
-        if (property.isRecordIdProperty()) {
+        if (property.isRecordId()) {
             val recordIdProperty = this.recordIdProperty
-
             if (recordIdProperty != null) {
                 throw MappingException(
                     """Attempt to add recordId property ${property.field} 
@@ -74,7 +57,6 @@ internal class BasicBitablePersistentEntity<T>(
                     |Check your mapping configuration!""".trimMargin()
                 )
             }
-
             this.recordIdProperty = property
         }
     }
