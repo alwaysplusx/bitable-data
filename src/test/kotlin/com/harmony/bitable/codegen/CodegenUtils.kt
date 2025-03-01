@@ -56,6 +56,7 @@ object CodegenUtils {
             serviceType = serviceType,
             group = getServiceGroup(serviceType),
             serviceName = getServiceName(serviceType),
+            serviceSimpleName = getServiceSimpleName(serviceType),
             method = method,
             requestType = TypeModel(method.parameters[0].type),
             responseDataType = responseDataType,
@@ -69,6 +70,10 @@ object CodegenUtils {
 
     private fun getServiceName(type: TypeModel): String {
         return type.name
+    }
+
+    private fun getServiceSimpleName(type: TypeModel): String {
+        return type.simpleName
     }
 
     private fun isPageMethod(method: Method): Boolean {
@@ -140,6 +145,7 @@ class MethodModel(
     val serviceType: TypeModel,
     val group: String,
     val serviceName: String,
+    val serviceSimpleName: String,
     val method: Method,
     val name: String = method.name,
     val requestType: TypeModel,

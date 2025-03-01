@@ -1,11 +1,13 @@
 package com.harmony.bitable.core
 
+import com.harmony.bitable.dsl.CountFilterBuilder
+import com.harmony.bitable.dsl.SearchFilterBuilder
+import com.harmony.bitable.dsl.SingleResultFilterBuilder
 import com.harmony.bitable.oapi.Pageable
 import com.harmony.bitable.oapi.cursor.PageCursor
 import com.harmony.bitable.oapi.cursor.firstElementOrNull
 import com.harmony.bitable.oapi.cursor.toElementList
-import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReq
-import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReqBody
+import com.harmony.bitable.utils.SearchUtils
 
 /**
  * 支持 bitable 数据的操作
@@ -32,25 +34,56 @@ interface BitableOperations {
 
     fun <T : Any> findAllById(recordIds: Iterable<String>, domainType: Class<T>): Iterable<T>
 
+    /**
+     * unique result or null
+     */
     fun <T : Any> findOne(
         domainType: Class<T>,
-        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }
+        searchCustomizer: (req: SearchRequestBuilder, body: SearchBodyBuilder) -> Unit = { _, _ -> }
     ): T?
 
+    /**
+     * unique result or null
+     */
+    fun <T : Any> findOne(domainType: Class<T>, block: SingleResultFilterBuilder<T>.() -> Unit): T?
+
+    /**
+     * first result or null
+     */
     fun <T : Any> findFirst(
         domainType: Class<T>,
-        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }
-    ): T? = scan(domainType, Pageable(1), searchCustomizer).firstElementOrNull()
+        searchCustomizer: (req: SearchRequestBuilder, body: SearchBodyBuilder) -> Unit = { _, _ -> }
+    ): T? {
+        val finalCustomizer = SearchUtils.all(searchCustomizer) { req, _ ->
+            req.pageSize(1)
+        }
+        return scan(domainType, finalCustomizer).firstElementOrNull()
+    }
 
-    fun <T : Any> scan(
-        domainType: Class<T>,
-        pageable: Pageable = Pageable(),
-        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }
-    ): PageCursor<T>
+    /**
+     * first result or null
+     */
+    fun <T : Any> findFirst(domainType: Class<T>, block: SingleResultFilterBuilder<T>.() -> Unit): T?
 
     fun <T : Any> count(
         domainType: Class<T>,
-        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit = { _, _ -> }
+        searchCustomizer: (req: SearchRequestBuilder, body: SearchBodyBuilder) -> Unit = { _, _ -> }
     ): Long
+
+    fun <T : Any> count(domainType: Class<T>, block: CountFilterBuilder<T>.() -> Unit): Long
+
+    fun <T : Any> scan(domainType: Class<T>, pageable: Pageable): PageCursor<T> {
+        return scan(domainType) { req, _ ->
+            req.pageSize(pageable.pageSize)
+            req.pageToken(pageable.pageToken)
+        }
+    }
+
+    fun <T : Any> scan(
+        domainType: Class<T>,
+        searchCustomizer: (req: SearchRequestBuilder, body: SearchBodyBuilder) -> Unit = { _, _ -> }
+    ): PageCursor<T>
+
+    fun <T : Any> scan(domainType: Class<T>, block: SearchFilterBuilder<T>.() -> Unit): PageCursor<T>
 
 }

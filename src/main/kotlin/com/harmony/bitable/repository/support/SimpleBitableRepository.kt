@@ -1,16 +1,15 @@
 package com.harmony.bitable.repository.support
 
 import com.harmony.bitable.core.BitableOperations
-import com.harmony.bitable.oapi.Pageable
 import com.harmony.bitable.oapi.cursor.PageCursor
 import com.harmony.bitable.repository.BitableRepository
 import com.harmony.bitable.repository.FilterCustomizer
 import org.springframework.dao.IncorrectResultSizeDataAccessException
 import java.util.*
 
-class SimpleBitableRepository<T : Any>(
-    private val entityInformation: BitableEntityInformation<T>,
-    private val bitableOperations: BitableOperations,
+open class SimpleBitableRepository<T : Any>(
+    protected val entityInformation: BitableEntityInformation<T>,
+    protected val bitableOperations: BitableOperations,
 ) : BitableRepository<T> {
 
     override fun <S : T> update(entity: S) = bitableOperations.update(entity)
@@ -73,12 +72,16 @@ class SimpleBitableRepository<T : Any>(
             ?: throw IncorrectResultSizeDataAccessException(1, 0)
     }
 
+    override fun findOne(filterCustomizer: FilterCustomizer): T? {
+        return bitableOperations.findOne(entityInformation.javaType, filterCustomizer::customize)
+    }
+
     override fun findFirst(filterCustomizer: FilterCustomizer): T? {
         return bitableOperations.findFirst(entityInformation.javaType, filterCustomizer::customize)
     }
 
     override fun search(filterCustomizer: FilterCustomizer): PageCursor<T> {
-        return bitableOperations.scan(entityInformation.javaType, Pageable(), filterCustomizer::customize)
+        return bitableOperations.scan(entityInformation.javaType, filterCustomizer::customize)
     }
 
     override fun count(filterCustomizer: FilterCustomizer): Long {

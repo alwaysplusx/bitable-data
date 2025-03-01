@@ -37,7 +37,7 @@ class BitableRepositoryFactoryBean<T : BitableRepository<S>, S : Any>(
         }
 
         override fun getRepositoryBaseClass(metadata: RepositoryMetadata): Class<*> {
-            return SimpleBitableRepository::class.java
+            return SimpleBitableDslRepository::class.java
         }
 
     }

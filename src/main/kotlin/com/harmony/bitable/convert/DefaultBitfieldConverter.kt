@@ -37,12 +37,7 @@ class DefaultBitfieldConverter(private val bitvalConverters: List<BitvalConverte
 
     override fun readAndConvertFieldValueFromRecord(property: BitablePersistentProperty, record: AppTableRecord): Any? {
         val bitvalConverter = findBitvalConverter(property)
-        val value = bitvalConverter.readAndConvert(property, record) ?: return null
-        val expectValueType = property.type
-        if (!expectValueType.isInstance(value)) {
-            throw IllegalArgumentException("Expected value type is ${expectValueType.name}, but got ${value.javaClass.name}")
-        }
-        return value
+        return bitvalConverter.readAndConvert(property, record)
     }
 
     override fun convertAndWritePropertyValueToRecord(

@@ -53,7 +53,8 @@ class BitableRepositoryAutoConfiguration(private val properties: BitableProperti
         return BitableTemplate(
             bitableRecordApi = bitableRecordApi,
             bitableMappingContext = bitableMappingContext,
-            bitableConverter = bitableConverter
+            bitableConverter = bitableConverter,
+            defaultPageSize = properties.defaultPageSize
         )
     }
 

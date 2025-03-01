@@ -1,8 +1,8 @@
 package com.harmony.bitable.oapi.bitable
 
 import com.harmony.bitable.BitableAddress
+import com.harmony.bitable.core.SearchRequest
 import com.harmony.bitable.oapi.BitableRecordApi
-import com.harmony.bitable.oapi.Pageable
 import com.harmony.bitable.oapi.cursor.PageCursor
 import com.harmony.bitable.oapi.ensureData
 import com.lark.oapi.Client
@@ -12,7 +12,7 @@ import com.lark.oapi.service.bitable.v1.model.*
  * 多维表格行数据管理(增删改查)
  * @author wuxin
  */
-class BitableRecordApiImpl(client: Client, private val defaultPageSize: Int = 20) : BitableRecordApi {
+class BitableRecordApiImpl(client: Client) : BitableRecordApi {
 
     private val appTableRecordClient = client.bitable().appTableRecord()
 
@@ -117,60 +117,15 @@ class BitableRecordApiImpl(client: Client, private val defaultPageSize: Int = 20
         return appTableRecordClient.batchUpdate(request).ensureData().records.toList()
     }
 
-    override fun batchGet(
-        address: BitableAddress,
-        recordIds: List<String>,
-        customizer: (BatchGetAppTableRecordReq.Builder, BatchGetAppTableRecordReqBody.Builder) -> Unit
-    ): List<AppTableRecord> {
-        val requestBuilder = BatchGetAppTableRecordReq.newBuilder()
-        val bodyBuilder = BatchGetAppTableRecordReqBody.newBuilder()
-        customizer(requestBuilder, bodyBuilder)
-
-        val request = requestBuilder
-            .appToken(address.appToken)
-            .tableId(address.tableId)
-            .batchGetAppTableRecordReqBody(bodyBuilder.recordIds(recordIds.toTypedArray()).build())
-            .build()
+    override fun batchGet(request: BatchGetAppTableRecordReq): List<AppTableRecord> {
         return appTableRecordClient.batchGet(request).ensureData().records.toList()
     }
 
-    override fun search(
-        address: BitableAddress,
-        customizer: (SearchAppTableRecordReq.Builder, SearchAppTableRecordReqBody.Builder) -> Unit
-    ) = search(address, Pageable(defaultPageSize), customizer)
-
-    override fun search(
-        address: BitableAddress,
-        pageable: Pageable,
-        customizer: (SearchAppTableRecordReq.Builder, SearchAppTableRecordReqBody.Builder) -> Unit
-    ): PageCursor<AppTableRecord> {
-        val requestBuilder = SearchAppTableRecordReq.newBuilder()
-        val bodyBuilder = SearchAppTableRecordReqBody.newBuilder()
-        customizer(requestBuilder, bodyBuilder)
-
-        val request = requestBuilder
-            .appToken(address.appToken)
-            .tableId(address.tableId)
-            .pageSize(pageable.pageSize)
-            .pageToken(pageable.pageToken)
-            .searchAppTableRecordReqBody(bodyBuilder.build())
-            .build()
+    override fun search(request: SearchRequest): PageCursor<AppTableRecord> {
         return appTableRecordClient.searchCursor(request)
     }
 
-    override fun count(
-        address: BitableAddress,
-        customizer: (SearchAppTableRecordReq.Builder, SearchAppTableRecordReqBody.Builder) -> Unit
-    ): Int {
-        val requestBuilder = SearchAppTableRecordReq.newBuilder()
-        val bodyBuilder = SearchAppTableRecordReqBody.newBuilder()
-        customizer(requestBuilder, bodyBuilder)
-
-        val request = requestBuilder.appToken(address.appToken)
-            .tableId(address.tableId)
-            .pageSize(1)
-            .searchAppTableRecordReqBody(bodyBuilder.build())
-            .build()
+    override fun count(request: SearchRequest): Int {
         return appTableRecordClient.search(request).ensureData().total
     }
 

@@ -16,6 +16,11 @@ interface BitablePersistentProperty : PersistentProperty<BitablePersistentProper
     fun getBitfieldId(): String?
 
     /**
+     * 实体的字段名称
+     */
+    fun getSimpleName(): String
+
+    /**
      * 多维表格列名
      */
     fun getBitfieldName(): String

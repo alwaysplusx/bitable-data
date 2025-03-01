@@ -8,10 +8,15 @@ import com.harmony.bitable.oapi.ensurePage
 import com.harmony.bitable.utils.PageUtils.scan
 
 import com.lark.oapi.core.request.RequestOptions
-
+import com.lark.oapi.core.utils.Jsons
 <#list imports as t>
 import ${t}
 </#list>
+
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+private val log: Logger = LoggerFactory.getLogger("lark.bitable-data")
 
 <#list methods as m>
 fun ${m.serviceName}.${m.name}Cursor(
@@ -21,6 +26,7 @@ fun ${m.serviceName}.${m.name}Cursor(
     return scan(req.pageSize, req.pageToken) { pageable ->
         req.pageToken = pageable.pageToken
         req.pageSize = pageable.pageSize
+        log.info("Start ${m.serviceSimpleName}.${m.name}, request content: {}", Jsons.DEFAULT.toJson(req))
         this.${m.name}(req, options).ensurePage { it.toPageSlice() }
     }
 }

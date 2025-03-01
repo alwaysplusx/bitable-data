@@ -1,11 +1,18 @@
 package com.harmony.bitable.core
 
 import com.harmony.bitable.convert.BitableConverter
+import com.harmony.bitable.dsl.CountFilterBuilder
+import com.harmony.bitable.dsl.SearchFilterBuilder
+import com.harmony.bitable.dsl.SingleResultFilterBuilder
 import com.harmony.bitable.mapping.BitableMappingContext
 import com.harmony.bitable.mapping.BitablePersistentEntity
 import com.harmony.bitable.oapi.BitableRecordApi
 import com.harmony.bitable.oapi.Pageable
-import com.harmony.bitable.oapi.cursor.*
+import com.harmony.bitable.oapi.cursor.PageCursor
+import com.harmony.bitable.oapi.cursor.convert
+import com.harmony.bitable.oapi.cursor.firstElementOrNull
+import com.harmony.bitable.oapi.cursor.nextSliceOrNull
+import com.harmony.bitable.utils.SearchUtils
 import com.lark.oapi.service.bitable.v1.model.AppTableRecord
 import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReq
 import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReqBody
@@ -20,7 +27,10 @@ class BitableTemplate(
     private val bitableRecordApi: BitableRecordApi,
     private val bitableMappingContext: BitableMappingContext,
     private val bitableConverter: BitableConverter,
+    defaultPageSize: Int = 20
 ) : BitableOperations {
+
+    private val defaultPageable = Pageable(defaultPageSize)
 
     override fun <T : Any> insert(instance: T): T {
         val persistentEntity = getPersistentEntity(instance)
@@ -48,7 +58,9 @@ class BitableTemplate(
 
     override fun <T : Any> deleteAll(domainType: Class<T>) {
         val persistentEntity = getPersistentEntity(domainType)
-        val recordIds = bitableRecordApi.search(persistentEntity.getBitableAddress())
+        val address = persistentEntity.getBitableAddress()
+        val searchRequest = SearchUtils.buildSearchRequest(address, defaultPageable)
+        val recordIds = bitableRecordApi.search(searchRequest)
             .streamOfElements()
             .map { it.recordId }
             .toList()
@@ -73,14 +85,6 @@ class BitableTemplate(
         }.flatMap { it.entries }.associate { it.toPair() }
     }
 
-    override fun <T : Any> count(
-        domainType: Class<T>,
-        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit
-    ): Long {
-        val persistentEntity = getPersistentEntity(domainType)
-        return bitableRecordApi.count(persistentEntity.getBitableAddress(), searchCustomizer).toLong()
-    }
-
     override fun <T : Any> findById(recordId: String, domainType: Class<T>): T? {
         val persistentEntity = getPersistentEntity(domainType)
         val record = bitableRecordApi.get(persistentEntity.getBitableAddress(), recordId) ?: return null
@@ -93,44 +97,72 @@ class BitableTemplate(
             .map { convertToEntity(it, persistentEntity) }
     }
 
-    override fun <T : Any> scan(
-        domainType: Class<T>,
-        pageable: Pageable,
-        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit
-    ): PageCursor<T> {
-        val persistentEntity = getPersistentEntity(domainType)
-        return bitableRecordApi.search(
-            persistentEntity.getBitableAddress(),
-            pageable,
-            searchCustomizer
-        ).convert { convertToEntity(it, persistentEntity) }
-    }
-
     override fun <T : Any> findOne(
         domainType: Class<T>,
-        searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit
-    ): T {
+        searchCustomizer: (req: SearchRequestBuilder, body: SearchBodyBuilder) -> Unit
+    ): T? {
         val persistentEntity = getPersistentEntity(domainType)
-        val record = getUniqueRecord(persistentEntity, searchCustomizer)
+        val address = persistentEntity.getBitableAddress()
+        val searchRequest = SearchUtils.buildSearchRequest(address, Pageable(1))
+        val record = findUniqueRecordOrNull(searchRequest) ?: return null
         return convertToEntity(record, persistentEntity)
     }
 
-    private fun <T : Any> getUniqueRecord(
-        persistentEntity: BitablePersistentEntity<T>,
+    override fun <T : Any> findOne(domainType: Class<T>, block: SingleResultFilterBuilder<T>.() -> Unit): T? {
+        val persistentEntity = getPersistentEntity(domainType)
+        val searchRequest = SingleResultFilterBuilder(domainType).apply(block).build(persistentEntity)
+        val record = findUniqueRecordOrNull(searchRequest) ?: return null
+        return convertToEntity(record, persistentEntity)
+    }
+
+    override fun <T : Any> findFirst(domainType: Class<T>, block: SingleResultFilterBuilder<T>.() -> Unit): T? {
+        val persistentEntity = getPersistentEntity(domainType)
+        val searchRequest = SingleResultFilterBuilder(domainType).apply(block).build(persistentEntity)
+        val record = bitableRecordApi.search(searchRequest).firstElementOrNull() ?: return null
+        return convertToEntity(record, persistentEntity)
+    }
+
+    override fun <T : Any> count(
+        domainType: Class<T>,
         searchCustomizer: (req: SearchAppTableRecordReq.Builder, body: SearchAppTableRecordReqBody.Builder) -> Unit
-    ): AppTableRecord {
-        val matchedPageSlice: PageSlice<AppTableRecord>? = bitableRecordApi.search(
-            persistentEntity.getBitableAddress(),
-            Pageable(2),
-            searchCustomizer
-        ).nextSliceOrNull()
+    ): Long {
+        val persistentEntity = getPersistentEntity(domainType)
+        val address = persistentEntity.getBitableAddress()
+        val searchRequest = SearchUtils.buildSearchRequest(address, Pageable(1), searchCustomizer)
+        return bitableRecordApi.count(searchRequest).toLong()
+    }
+
+    override fun <T : Any> count(domainType: Class<T>, block: CountFilterBuilder<T>.() -> Unit): Long {
+        val persistentEntity = getPersistentEntity(domainType)
+        val searchRequest = CountFilterBuilder(domainType).apply(block).build(persistentEntity)
+        return bitableRecordApi.count(searchRequest).toLong()
+    }
+
+    override fun <T : Any> scan(domainType: Class<T>, block: SearchFilterBuilder<T>.() -> Unit): PageCursor<T> {
+        val persistentEntity = getPersistentEntity(domainType)
+        val searchRequest = SearchFilterBuilder(domainType).apply(block).build(persistentEntity)
+        return bitableRecordApi.search(searchRequest).convert { convertToEntity(it, persistentEntity) }
+    }
+
+    override fun <T : Any> scan(
+        domainType: Class<T>,
+        searchCustomizer: (req: SearchRequestBuilder, body: SearchBodyBuilder) -> Unit
+    ): PageCursor<T> {
+        val persistentEntity = getPersistentEntity(domainType)
+        val address = persistentEntity.getBitableAddress()
+        val searchRequest = SearchUtils.buildSearchRequest(address, defaultPageable, searchCustomizer)
+        return bitableRecordApi.search(searchRequest).convert { convertToEntity(it, persistentEntity) }
+    }
+
+    private fun findUniqueRecordOrNull(req: SearchAppTableRecordReq): AppTableRecord? {
+        val matchedPageSlice = bitableRecordApi.search(req).nextSliceOrNull()
         if (matchedPageSlice == null || matchedPageSlice.total() == 0) {
-            throw IncorrectResultSizeDataAccessException(1, 0)
+            return null
         }
         if (matchedPageSlice.total() > 1) {
             throw IncorrectResultSizeDataAccessException(1, matchedPageSlice.total())
         }
-        return matchedPageSlice.firstElement()
+        return matchedPageSlice.firstElementOrNull()
     }
 
     private fun <R> getPersistentEntity(cls: Class<R>): BitablePersistentEntity<R> {

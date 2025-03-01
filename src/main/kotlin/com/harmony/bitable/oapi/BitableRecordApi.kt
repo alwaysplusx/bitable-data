@@ -1,9 +1,11 @@
 package com.harmony.bitable.oapi
 
 import com.harmony.bitable.BitableAddress
+import com.harmony.bitable.core.SearchRequest
 import com.harmony.bitable.oapi.cursor.PageCursor
-import com.lark.oapi.core.request.RequestOptions
-import com.lark.oapi.service.bitable.v1.model.*
+import com.lark.oapi.service.bitable.v1.model.AppTableRecord
+import com.lark.oapi.service.bitable.v1.model.BatchGetAppTableRecordReq
+import com.lark.oapi.service.bitable.v1.model.BatchGetAppTableRecordReqBody
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter
 
 /**
@@ -67,49 +69,46 @@ interface BitableRecordApi {
      */
     @RateLimiter(name = "bitable-record-batch-get")
     fun get(address: BitableAddress, recordId: String, userIdType: String? = null): AppTableRecord? =
-        batchGet(address, listOf(recordId)) { _, body ->
-            body.userIdType(userIdType)
-        }.firstOrNull()
+        batchGet(address, listOf(recordId), userIdType).firstOrNull()
 
     /**
      * 批量获取记录
      * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.batchGet
      */
     @RateLimiter(name = "bitable-record-batch-get")
-    fun batchGet(
-        address: BitableAddress,
-        recordIds: List<String>,
-        customizer: ((BatchGetAppTableRecordReq.Builder, BatchGetAppTableRecordReqBody.Builder) -> Unit) = { _, _ -> }
-    ): List<AppTableRecord>
+    fun batchGet(address: BitableAddress, recordIds: List<String>, userIdType: String? = null): List<AppTableRecord> {
+        val body = BatchGetAppTableRecordReqBody
+            .newBuilder()
+            .recordIds(recordIds.toTypedArray())
+            .userIdType(userIdType)
+            .build()
+        val request = BatchGetAppTableRecordReq.newBuilder()
+            .appToken(address.appToken)
+            .tableId(address.tableId)
+            .batchGetAppTableRecordReqBody(body)
+            .build()
+        return batchGet(request)
+    }
 
     /**
+     * 批量获取记录
+     * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.batchGet
+     */
+    @RateLimiter(name = "bitable-record-batch-get")
+    fun batchGet(request: BatchGetAppTableRecordReq): List<AppTableRecord>
+
+    /**
+     * FIXME cursor search with rate limiter
      * 搜索记录
      * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.search
      */
     @RateLimiter(name = "bitable-record-search")
-    fun search(
-        address: BitableAddress,
-        customizer: ((SearchAppTableRecordReq.Builder, SearchAppTableRecordReqBody.Builder) -> Unit) = { _, _ -> }
-    ): PageCursor<AppTableRecord>
-
-    /**
-     * 搜索记录
-     * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.search
-     */
-    @RateLimiter(name = "bitable-record-search")
-    fun search(
-        address: BitableAddress,
-        pageable: Pageable,
-        customizer: (SearchAppTableRecordReq.Builder, SearchAppTableRecordReqBody.Builder) -> Unit
-    ): PageCursor<AppTableRecord>
+    fun search(request: SearchRequest): PageCursor<AppTableRecord>
 
     /**
      * 统计数据量
      */
     @RateLimiter(name = "bitable-record-search")
-    fun count(
-        address: BitableAddress,
-        customizer: ((SearchAppTableRecordReq.Builder, SearchAppTableRecordReqBody.Builder) -> Unit) = { _, _ -> }
-    ): Int
+    fun count(request: SearchRequest): Int
 
 }

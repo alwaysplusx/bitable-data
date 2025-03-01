@@ -11,8 +11,19 @@ interface BitableRepository<T : Any> : CrudRepository<T, String> {
 
     fun getOneById(id: String): T
 
+    /**
+     * required unique one result
+     */
     fun getOne(filterCustomizer: FilterCustomizer = FilterCustomizer.NoOpCustomizer): T
 
+    /**
+     * find unique one result or null
+     */
+    fun findOne(filterCustomizer: FilterCustomizer = FilterCustomizer.NoOpCustomizer): T?
+
+    /**
+     * first one or null
+     */
     fun findFirst(filterCustomizer: FilterCustomizer = FilterCustomizer.NoOpCustomizer): T?
 
     fun search(filterCustomizer: FilterCustomizer = FilterCustomizer.NoOpCustomizer): PageCursor<T>

@@ -20,6 +20,7 @@ internal class BasicBitablePersistentProperty(
     override fun createAssociation() = Association(this, null)
 
     override fun getBitfieldId(): String? = field.appField?.fieldId
+    override fun getSimpleName() = this.name
 
     override fun getBitfieldName(): String = field.fieldName
 

@@ -1,6 +1,6 @@
 package com.harmony.bitable
 
-import com.harmony.bitable.repository.BitableRepository
+import com.harmony.bitable.repository.BitableDslRepository
 import com.harmony.bitable.repository.config.EnableBitableRepositories
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -15,5 +15,5 @@ fun main(vararg args: String) {
 }
 
 @Repository
-interface BookRepository : BitableRepository<Book>
+interface BookRepository : BitableDslRepository<Book>
 

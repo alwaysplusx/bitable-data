@@ -43,7 +43,7 @@ class BitableAutoConfiguration {
 
         @Bean
         @ConditionalOnMissingBean(BitableRecordApi::class)
-        fun bitableRecordApi(): BitableRecordApi = BitableRecordApiImpl(larkClient, properties.defaultPageSize)
+        fun bitableRecordApi(): BitableRecordApi = BitableRecordApiImpl(larkClient)
 
     }
 
@@ -68,7 +68,7 @@ class BitableAutoConfiguration {
         @ConditionalOnMissingBean(BitableRecordApi::class)
         fun bitableRecordApi(
         ): BitableRecordApi {
-            val bitableRecordApi = BitableRecordApiImpl(larkClient, properties.defaultPageSize)
+            val bitableRecordApi = BitableRecordApiImpl(larkClient)
             return proxyWithRateLimiter(bitableRecordApi, BitableRecordApi::class, rateLimiterRegistry)
         }
 
