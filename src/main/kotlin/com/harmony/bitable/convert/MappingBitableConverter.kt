@@ -4,7 +4,6 @@ import com.harmony.bitable.mapping.BitableMappingContext
 import com.harmony.bitable.mapping.BitablePersistentEntity
 import com.harmony.bitable.mapping.BitablePersistentProperty
 import com.lark.oapi.service.bitable.v1.model.AppTableRecord
-import org.slf4j.LoggerFactory
 import org.springframework.core.convert.ConversionService
 import org.springframework.core.convert.support.DefaultConversionService
 import org.springframework.data.mapping.Parameter
@@ -19,8 +18,6 @@ class MappingBitableConverter(
 ) : BitableConverter {
 
     companion object {
-
-        private val log = LoggerFactory.getLogger(MappingBitableConverter::class.java)
 
         private val NoOpParameterValueProvider = object : ParameterValueProvider<BitablePersistentProperty> {
 
@@ -47,12 +44,8 @@ class MappingBitableConverter(
 
         sink.fields = mutableMapOf()
         persistentEntity.filter { !it.isReadonly() }.forEach {
-            val fieldValue = bitfieldConverter.readAndConvertPropertyValueFromAccessor(it, accessor)
-            if (it.isRecordIdProperty()) {
-                sink.recordId = fieldValue?.toString()
-            } else {
-                sink.fields[it.getBitfieldName()] = fieldValue
-            }
+            val propertyValue = accessor.getProperty(it)
+            bitfieldConverter.convertAndWritePropertyValueToRecord(propertyValue, it, sink)
         }
     }
 

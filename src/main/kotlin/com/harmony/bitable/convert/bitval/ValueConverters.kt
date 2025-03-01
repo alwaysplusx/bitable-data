@@ -12,25 +12,22 @@ import java.time.ZoneId
  */
 object ValueConverters {
 
-    fun <T> convertObject(value: Any?, type: Class<*>): T? {
+    fun <T> convertToObject(value: Any?, type: Class<*>): T? {
         if (value == null || type.isInstance(value)) {
             return value as T
         }
         return Jsons.DEFAULT.fromJson(Jsons.DEFAULT.toJsonTree(value), type) as T
     }
 
-    fun <T> convertArray(value: Any?, type: Class<T>): Array<T>? {
+    fun <T> convertToArray(value: Any?, type: Class<T>): Array<T>? {
         if (value == null) {
             return null
         }
         return Jsons.DEFAULT.fromJson(Jsons.DEFAULT.toJsonTree(value), TypeToken.getArray(type)) as Array<T>
     }
 
-    fun convertTime(value: Any?, type: Class<*>): Any? {
-        if (value == null) {
-            return null
-        }
-        val valueAsLong = (value as Double).toLong()
+    fun convertToTime(value: Number, type: Class<*>): Any? {
+        val valueAsLong = value.toLong()
         return when (type) {
 
             Long::class.java -> valueAsLong
@@ -49,5 +46,18 @@ object ValueConverters {
         }
     }
 
+    fun convertToLong(value: Any?): Long? {
+        if (value == null) {
+            return null
+        }
+        return when (value) {
+            is Number -> value.toLong()
+            is LocalDate -> value.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+            is LocalDateTime -> value.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+            else -> {
+                throw IllegalArgumentException("unsupported value: $value")
+            }
+        }
+    }
 
 }

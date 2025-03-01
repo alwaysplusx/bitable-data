@@ -19,7 +19,7 @@ class BookApplicationTests {
 
     @Test
     fun test() {
-        bookRepository.search().steamOfElements().forEach {
+        bookRepository.search().streamOfElements().forEach {
             println("Book: id=${it.id} name=${it.name}")
         }
     }

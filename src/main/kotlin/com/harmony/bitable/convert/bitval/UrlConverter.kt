@@ -11,12 +11,17 @@ import com.lark.oapi.service.bitable.v1.model.Url
  * @author wuxin
  */
 class UrlConverter : BitvalConverter {
-    override fun canRead(property: BitablePersistentProperty): Boolean {
+    override fun canHandle(property: BitablePersistentProperty): Boolean {
         return property.getBitfieldType() == BitfieldType.URL
     }
 
     override fun readAndConvert(property: BitablePersistentProperty, record: AppTableRecord): Url? {
         val value = record.getPropertyValue(property)
-        return ValueConverters.convertObject(value, Url::class.java)
+        return ValueConverters.convertToObject(value, Url::class.java)
     }
+
+    override fun convertAndWrite(value: Any?, property: BitablePersistentProperty, record: AppTableRecord) {
+        record.fields[property.getBitfieldName()] = value
+    }
+
 }

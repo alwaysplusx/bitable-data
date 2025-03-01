@@ -9,12 +9,16 @@ import com.lark.oapi.service.bitable.v1.model.AppTableRecord
  */
 class RecordIdConverter : BitvalConverter {
 
-    override fun canRead(property: BitablePersistentProperty): Boolean {
+    override fun canHandle(property: BitablePersistentProperty): Boolean {
         return property.isRecordIdProperty()
     }
 
     override fun readAndConvert(property: BitablePersistentProperty, record: AppTableRecord): Any? {
         return record.recordId
+    }
+
+    override fun convertAndWrite(value: Any?, property: BitablePersistentProperty, record: AppTableRecord) {
+        record.recordId = value?.toString()
     }
 
 }

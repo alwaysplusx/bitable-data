@@ -10,12 +10,19 @@ import com.lark.oapi.service.bitable.v1.model.AppTableRecord
  * @author wuxin
  */
 class UpdatedAtConverter : BitvalConverter {
-    override fun canRead(property: BitablePersistentProperty): Boolean {
+    override fun canHandle(property: BitablePersistentProperty): Boolean {
         return property.getBitfieldType() == BitfieldType.UPDATED_AT
     }
 
     override fun readAndConvert(property: BitablePersistentProperty, record: AppTableRecord): Any? {
-        val value = record.lastModifiedTime ?: record.getPropertyValue(property)
-        return ValueConverters.convertTime(value, property.type)
+        val value = (record.lastModifiedTime ?: record.getPropertyValue(property)) ?: return null
+        return ValueConverters.convertToTime(value as Number, property.type)
     }
+
+    override fun convertAndWrite(value: Any?, property: BitablePersistentProperty, record: AppTableRecord) {
+        val valueOfLong = ValueConverters.convertToLong(value)
+        record.lastModifiedTime = valueOfLong
+        record.fields[property.getBitfieldName()] = valueOfLong
+    }
+
 }

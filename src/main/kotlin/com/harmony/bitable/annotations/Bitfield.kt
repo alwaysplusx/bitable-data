@@ -38,6 +38,6 @@ annotation class Bitfield(
     /**
      * 自定义 converter
      */
-    val converter: KClass<out BitvalConverter> = BitvalConverter::class
+    val converter: KClass<BitvalConverter> = BitvalConverter::class
 
 )

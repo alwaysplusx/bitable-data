@@ -11,13 +11,17 @@ import com.lark.oapi.service.bitable.v1.model.AppTableRecord
  */
 class CheckboxConverter : BitvalConverter {
 
-    override fun canRead(property: BitablePersistentProperty): Boolean {
+    override fun canHandle(property: BitablePersistentProperty): Boolean {
         return property.getBitfieldType() == BitfieldType.CHECKBOX
     }
 
     override fun readAndConvert(property: BitablePersistentProperty, record: AppTableRecord): Any? {
         val value = record.getPropertyValue(property) ?: return null
         return value == true
+    }
+
+    override fun convertAndWrite(value: Any?, property: BitablePersistentProperty, record: AppTableRecord) {
+        record.fields[property.getBitfieldName()] = value
     }
 
 }

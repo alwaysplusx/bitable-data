@@ -1,6 +1,7 @@
 package com.harmony.bitable
 
 import com.harmony.bitable.annotations.BitId
+import com.harmony.bitable.convert.BitvalConverter
 import com.harmony.bitable.oapi.BitableApi
 import com.harmony.bitable.utils.BitityUtils
 import com.harmony.bitable.utils.BitityUtils.getBitfieldType
@@ -51,7 +52,8 @@ class DefaultBitableSource(private val appToken: String, private val bitableApi:
             fieldType = resolveFieldType(bitfieldAnnotation, property),
             property = property,
             isRecordIdField = bitIdAnnotation != null,
-            isReadonly = bitfieldAnnotation?.readonly ?: false
+            isReadonly = bitfieldAnnotation?.readonly ?: false,
+            customizeConverter = bitfieldAnnotation?.converter ?: BitvalConverter::class
         )
     }
 

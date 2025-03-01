@@ -1,7 +1,9 @@
 package com.harmony.bitable.mapping
 
 import com.harmony.bitable.BitfieldType
+import com.harmony.bitable.convert.BitvalConverter
 import org.springframework.data.mapping.PersistentProperty
+import kotlin.reflect.KClass
 
 /**
  * 与多维表格中的列对应
@@ -33,5 +35,10 @@ interface BitablePersistentProperty : PersistentProperty<BitablePersistentProper
      * 是否是只读列
      */
     fun isReadonly(): Boolean
+
+    /**
+     * 获取位于[com.harmony.bitable.annotations.Bitfield.converter]的自定义converter
+     */
+    fun getCustomizeConverterType(): KClass<BitvalConverter>
 
 }

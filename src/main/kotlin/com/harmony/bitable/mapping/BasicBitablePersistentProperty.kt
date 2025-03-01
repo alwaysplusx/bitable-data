@@ -1,10 +1,12 @@
 package com.harmony.bitable.mapping
 
 import com.harmony.bitable.BitfieldType
+import com.harmony.bitable.convert.BitvalConverter
 import org.springframework.data.mapping.Association
 import org.springframework.data.mapping.model.AnnotationBasedPersistentProperty
 import org.springframework.data.mapping.model.Property
 import org.springframework.data.mapping.model.SimpleTypeHolder
+import kotlin.reflect.KClass
 
 internal class BasicBitablePersistentProperty(
     property: Property,
@@ -26,5 +28,7 @@ internal class BasicBitablePersistentProperty(
     override fun isRecordIdProperty(): Boolean = field.isRecordIdField
 
     override fun isReadonly(): Boolean = field.isReadonly
+
+    override fun getCustomizeConverterType(): KClass<BitvalConverter> = field.customizeConverter
 
 }

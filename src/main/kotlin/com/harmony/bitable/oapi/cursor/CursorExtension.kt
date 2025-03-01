@@ -16,16 +16,16 @@ fun <T> PageSlice<T>.firstElementOrNull(predicate: (T) -> Boolean = { true }): T
 }
 
 fun <T> PageCursor<T>.firstElement(predicate: (T) -> Boolean = { true }): T {
-    return this.steamOfElements()
+    return this.streamOfElements()
         .filter(predicate)
         .findFirst()
         .orElseThrow { throw IllegalStateException("element not found") }
 }
 
 fun <T> PageCursor<T>.firstElementOrNull(predicate: (T) -> Boolean = { true }): T? =
-    this.steamOfElements().filter(predicate).findFirst().orElse(null)
+    this.streamOfElements().filter(predicate).findFirst().orElse(null)
 
-fun <T> PageCursor<T>.toElementList(): MutableList<T> = this.steamOfElements().toList()
+fun <T> PageCursor<T>.toElementList(): MutableList<T> = this.streamOfElements().toList()
 
 fun <T, R> PageCursor<T>.convert(converter: (T) -> R): PageCursor<R> {
     val cursor: PageCursor<T> = this

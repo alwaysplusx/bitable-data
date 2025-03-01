@@ -3,9 +3,8 @@ package com.harmony.bitable.convert
 import com.harmony.bitable.convert.bitval.*
 import com.harmony.bitable.mapping.BitablePersistentProperty
 import com.lark.oapi.service.bitable.v1.model.AppTableRecord
-import org.slf4j.LoggerFactory
-import org.springframework.core.convert.support.DefaultConversionService
-import org.springframework.data.mapping.PersistentPropertyAccessor
+import org.springframework.util.ClassUtils
+import kotlin.reflect.KClass
 
 /**
  * @author wuxin
@@ -14,8 +13,6 @@ class DefaultBitfieldConverter(private val bitvalConverters: List<BitvalConverte
     BitfieldConverter {
 
     companion object {
-        private val log = LoggerFactory.getLogger(DefaultBitfieldConverter::class.java)
-
         private val defaultReaders = listOf(
             RecordIdConverter(),
             AttachmentConverter(),
@@ -39,35 +36,39 @@ class DefaultBitfieldConverter(private val bitvalConverters: List<BitvalConverte
     }
 
     override fun readAndConvertFieldValueFromRecord(property: BitablePersistentProperty, record: AppTableRecord): Any? {
-        val bitvalConverter = bitvalConverters.stream()
-            .filter { it.canRead(property) }
-            .findFirst()
-            .orElseThrow { IllegalArgumentException("No BitvalReader found for ${property.getBitfieldName()}") }
-        val expectValueType = property.type
+        val bitvalConverter = findBitvalConverter(property)
         val value = bitvalConverter.readAndConvert(property, record) ?: return null
+        val expectValueType = property.type
         if (!expectValueType.isInstance(value)) {
             throw IllegalArgumentException("Expected value type is ${expectValueType.name}, but got ${value.javaClass.name}")
         }
         return value
     }
 
-    override fun readAndConvertPropertyValueFromAccessor(
+    override fun convertAndWritePropertyValueToRecord(
+        propertyValue: Any?,
         property: BitablePersistentProperty,
-        accessor: PersistentPropertyAccessor<Any>
-    ): Any? {
-        val propertyValue = accessor.getProperty(property) ?: return null
-        val resultValue =
-            DefaultConversionService.getSharedInstance().convert(propertyValue, property.getBitfieldType().type)
-        log.debug(
-            "Get and convert property value of {}({})\ntype: {} -> {}\nvalue: {} -> {}",
-            property.getBitfieldName(),
-            property.name,
-            property.type.name,
-            property.getBitfieldType().type.name,
-            propertyValue,
-            resultValue
-        )
-        return resultValue
+        record: AppTableRecord
+    ) {
+        val bitvalConverter = findBitvalConverter(property)
+        bitvalConverter.convertAndWrite(propertyValue, property, record)
+    }
+
+    private fun findBitvalConverter(property: BitablePersistentProperty): BitvalConverter {
+        val customizeConverterType = property.getCustomizeConverterType()
+        if (customizeConverterType != BitvalConverter::class) {
+            return createBitvalConverter(customizeConverterType)
+        }
+        return bitvalConverters.stream()
+            .filter { it.canHandle(property) }
+            .findFirst()
+            .orElseThrow { IllegalArgumentException("No BitvalReader found for ${property.getBitfieldName()}") }
+    }
+
+    private fun createBitvalConverter(convertType: KClass<BitvalConverter>): BitvalConverter {
+        val constructor = ClassUtils.getConstructorIfAvailable(convertType.java)
+            ?: throw IllegalArgumentException("No default constructor for $convertType")
+        return constructor.newInstance()
     }
 
 }

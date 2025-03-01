@@ -12,7 +12,7 @@ import com.lark.oapi.service.bitable.v1.model.Person
  */
 class CreatedByConverter : BitvalConverter {
 
-    override fun canRead(property: BitablePersistentProperty): Boolean {
+    override fun canHandle(property: BitablePersistentProperty): Boolean {
         return property.getBitfieldType() == BitfieldType.CREATED_BY
     }
 
@@ -21,7 +21,12 @@ class CreatedByConverter : BitvalConverter {
             return record.createdBy
         }
         val value = record.getPropertyValue(property)
-        return ValueConverters.convertArray(value, Person::class.java)?.firstOrNull()
+        return ValueConverters.convertToArray(value, Person::class.java)?.firstOrNull()
+    }
+
+    override fun convertAndWrite(value: Any?, property: BitablePersistentProperty, record: AppTableRecord) {
+        record.createdBy = value as Person?
+        record.fields[property.getBitfieldName()] = value
     }
 
 }

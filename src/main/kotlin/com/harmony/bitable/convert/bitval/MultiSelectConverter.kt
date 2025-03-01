@@ -11,14 +11,13 @@ import com.lark.oapi.service.bitable.v1.model.AppTableRecord
  */
 class MultiSelectConverter : BitvalConverter {
 
-    override fun canRead(property: BitablePersistentProperty): Boolean {
+    override fun canHandle(property: BitablePersistentProperty): Boolean {
         return property.getBitfieldType() == BitfieldType.MULTI_SELECT
     }
 
     override fun readAndConvert(property: BitablePersistentProperty, record: AppTableRecord): Any? {
         val value = record.getPropertyValue(property) ?: return null
-        val result = ValueConverters.convertArray(value, String::class.java) ?: return null
-        // TODO or enum
+        val result = ValueConverters.convertToArray(value, String::class.java) ?: return null
         return when {
             property.type.isArray -> result
             property.type == List::class.java -> result.toList()
@@ -26,6 +25,10 @@ class MultiSelectConverter : BitvalConverter {
                 throw IllegalArgumentException("Unsupported MultiSelect type: ${property.type}")
             }
         }
+    }
+
+    override fun convertAndWrite(value: Any?, property: BitablePersistentProperty, record: AppTableRecord) {
+        record.fields[property.getBitfieldName()] = value
     }
 
 }

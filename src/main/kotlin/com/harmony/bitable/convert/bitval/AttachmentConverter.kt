@@ -12,13 +12,13 @@ import com.lark.oapi.service.bitable.v1.model.Attachment
  */
 class AttachmentConverter : BitvalConverter {
 
-    override fun canRead(property: BitablePersistentProperty): Boolean {
+    override fun canHandle(property: BitablePersistentProperty): Boolean {
         return property.getBitfieldType() == BitfieldType.ATTACHMENT
     }
 
     override fun readAndConvert(property: BitablePersistentProperty, record: AppTableRecord): Any? {
         val value = record.getPropertyValue(property)
-        val attachments = ValueConverters.convertArray(value, Attachment::class.java) ?: return null
+        val attachments = ValueConverters.convertToArray(value, Attachment::class.java) ?: return null
         return when {
             property.type.isArray -> attachments
             property.type == List::class.java -> attachments.toList()
@@ -27,6 +27,10 @@ class AttachmentConverter : BitvalConverter {
                 throw IllegalArgumentException("Unsupported Attachment type: ${property.type}")
             }
         }
+    }
+
+    override fun convertAndWrite(value: Any?, property: BitablePersistentProperty, record: AppTableRecord) {
+        record.fields[property.getBitfieldName()] = value
     }
 
 }

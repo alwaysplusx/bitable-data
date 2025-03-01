@@ -2,7 +2,6 @@ package com.harmony.bitable.convert
 
 import com.harmony.bitable.mapping.BitablePersistentProperty
 import com.lark.oapi.service.bitable.v1.model.AppTableRecord
-import org.springframework.data.mapping.PersistentPropertyAccessor
 
 /**
  * @author wuxin
@@ -15,15 +14,12 @@ interface BitfieldConverter {
     fun readAndConvertFieldValueFromRecord(property: BitablePersistentProperty, record: AppTableRecord): Any?
 
     /**
-     * 读取实体对象中的字段值，并完成类型转换。最终用于写入飞书表格记录。
+     * 将值进行转化，并最终写入到飞书表格记录中
      */
-    fun readAndConvertPropertyValueFromAccessor(
+    fun convertAndWritePropertyValueToRecord(
+        propertyValue: Any?,
         property: BitablePersistentProperty,
-        accessor: PersistentPropertyAccessor<Any>
-    ): Any?
-
-    // fun readValueFromRecord(property: BitablePersistentProperty, record: AppTableRecord): Any?
-    // fun readValueFromRecord
-    // fun readValueFromAccessor(property: BitablePersistentProperty, accessor: PersistentPropertyAccessor<Any>): Any?
+        record: AppTableRecord
+    )
 
 }

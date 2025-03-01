@@ -11,7 +11,7 @@ import com.lark.oapi.service.bitable.v1.model.Person
  * @author wuxin
  */
 class UpdatedByConverter : BitvalConverter {
-    override fun canRead(property: BitablePersistentProperty): Boolean {
+    override fun canHandle(property: BitablePersistentProperty): Boolean {
         return property.getBitfieldType() == BitfieldType.UPDATED_BY
     }
 
@@ -20,6 +20,12 @@ class UpdatedByConverter : BitvalConverter {
             return record.lastModifiedBy
         }
         val value = record.getPropertyValue(property)
-        return ValueConverters.convertArray(value, Person::class.java)?.firstOrNull()
+        return ValueConverters.convertToArray(value, Person::class.java)?.firstOrNull()
     }
+
+    override fun convertAndWrite(value: Any?, property: BitablePersistentProperty, record: AppTableRecord) {
+        record.lastModifiedBy = value as Person?
+        record.fields[property.getBitfieldName()] = value
+    }
+
 }

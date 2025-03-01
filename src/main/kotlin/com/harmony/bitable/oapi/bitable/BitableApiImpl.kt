@@ -44,7 +44,7 @@ class BitableApiImpl(client: Client, private val pageSize: Int = 20) : BitableAp
 
     private fun getAppTable(address: BitableAddress): AppTable {
         return scanAppTables(address.appToken)
-            .steamOfElements()
+            .streamOfElements()
             .filter { it.tableId == address.tableId }
             .findFirst()
             .orElseThrow { throw IllegalStateException("$address table not found") }
@@ -52,7 +52,7 @@ class BitableApiImpl(client: Client, private val pageSize: Int = 20) : BitableAp
 
     private fun getAppTable(appToken: String, tableName: String): AppTable {
         return scanAppTables(appToken)
-            .steamOfElements()
+            .streamOfElements()
             .filter { it.name == tableName }
             .findFirst()
             .orElseThrow { throw IllegalStateException("$tableName table not found") }

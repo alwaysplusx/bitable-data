@@ -16,6 +16,7 @@ interface BitableSource {
      *
      * @param name table name
      */
+    @Deprecated("will be inner method")
     fun getBitable(name: String): Bitable
 
     /**

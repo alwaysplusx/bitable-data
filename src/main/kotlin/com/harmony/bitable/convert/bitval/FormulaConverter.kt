@@ -9,7 +9,7 @@ import com.lark.oapi.service.bitable.v1.model.AppTableRecord
  * @author wuxin
  */
 class FormulaConverter : BitvalConverter {
-    override fun canRead(property: BitablePersistentProperty): Boolean {
+    override fun canHandle(property: BitablePersistentProperty): Boolean {
         return property.getBitfieldType() == BitfieldType.FORMULA
     }
 
@@ -17,4 +17,9 @@ class FormulaConverter : BitvalConverter {
         // TODO Not yet implemented
         return null
     }
+
+    override fun convertAndWrite(value: Any?, property: BitablePersistentProperty, record: AppTableRecord) {
+        // TODO Not yet implemented
+    }
+
 }

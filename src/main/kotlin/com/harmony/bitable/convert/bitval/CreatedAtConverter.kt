@@ -11,14 +11,19 @@ import com.lark.oapi.service.bitable.v1.model.AppTableRecord
  */
 class CreatedAtConverter : BitvalConverter {
 
-    override fun canRead(property: BitablePersistentProperty): Boolean {
+    override fun canHandle(property: BitablePersistentProperty): Boolean {
         return property.getBitfieldType() == BitfieldType.CREATED_AT
     }
 
     override fun readAndConvert(property: BitablePersistentProperty, record: AppTableRecord): Any? {
-        val value = record.createdTime ?: record.getPropertyValue(property)
-        return ValueConverters.convertTime(value, property.type)
+        val value = (record.createdTime ?: record.getPropertyValue(property)) ?: return null
+        return ValueConverters.convertToTime(value as Number, property.type)
     }
 
+    override fun convertAndWrite(value: Any?, property: BitablePersistentProperty, record: AppTableRecord) {
+        val valueOfLong = ValueConverters.convertToLong(value)
+        record.createdTime = valueOfLong
+        record.fields[property.getBitfieldName()] = valueOfLong
+    }
 
 }

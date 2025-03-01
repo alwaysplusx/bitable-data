@@ -49,7 +49,7 @@ class BitableTemplate(
     override fun <T : Any> deleteAll(domainType: Class<T>) {
         val persistentEntity = getPersistentEntity(domainType)
         val recordIds = bitableRecordApi.search(persistentEntity.getBitableAddress())
-            .steamOfElements()
+            .streamOfElements()
             .map { it.recordId }
             .toList()
         deleteAllById(recordIds, domainType)

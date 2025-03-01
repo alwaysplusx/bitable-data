@@ -8,6 +8,6 @@ import java.util.stream.Stream
  */
 interface PageCursor<T> : Iterator<PageSlice<T>> {
 
-    fun steamOfElements(): Stream<T> = Streamable.of(Iterable { this }).stream().flatMap { it.stream() }
+    fun streamOfElements(): Stream<T> = Streamable.of(Iterable { this }).stream().flatMap { it.stream() }
 
 }

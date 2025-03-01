@@ -12,13 +12,17 @@ import org.springframework.core.convert.support.DefaultConversionService
  */
 class NumberConverter : BitvalConverter {
 
-    override fun canRead(property: BitablePersistentProperty): Boolean {
+    override fun canHandle(property: BitablePersistentProperty): Boolean {
         return property.getBitfieldType() == BitfieldType.NUMBER
     }
 
     override fun readAndConvert(property: BitablePersistentProperty, record: AppTableRecord): Any? {
         val value = record.getPropertyValue(property) ?: return null
         return DefaultConversionService.getSharedInstance().convert(value, property.type)
+    }
+
+    override fun convertAndWrite(value: Any?, property: BitablePersistentProperty, record: AppTableRecord) {
+        record.fields[property.getBitfieldName()] = value
     }
 
 }

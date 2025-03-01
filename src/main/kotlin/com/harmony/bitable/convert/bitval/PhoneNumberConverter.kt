@@ -10,11 +10,16 @@ import com.lark.oapi.service.bitable.v1.model.AppTableRecord
  * @author wuxin
  */
 class PhoneNumberConverter : BitvalConverter {
-    override fun canRead(property: BitablePersistentProperty): Boolean {
+    override fun canHandle(property: BitablePersistentProperty): Boolean {
         return property.getBitfieldType() == BitfieldType.PHONE_NUMBER
     }
 
     override fun readAndConvert(property: BitablePersistentProperty, record: AppTableRecord): Any? {
         return record.getPropertyValue(property)
     }
+
+    override fun convertAndWrite(value: Any?, property: BitablePersistentProperty, record: AppTableRecord) {
+        record.fields[property.getBitfieldName()] = value
+    }
+
 }

@@ -11,14 +11,18 @@ import com.lark.oapi.service.bitable.v1.model.Location
  * @author wuxin
  */
 class LocationConverter : BitvalConverter {
-    override fun canRead(property: BitablePersistentProperty): Boolean {
+    override fun canHandle(property: BitablePersistentProperty): Boolean {
         return property.getBitfieldType() == BitfieldType.LOCATION
                 || property.type.isAssignableFrom(Location::class.java)
     }
 
     override fun readAndConvert(property: BitablePersistentProperty, record: AppTableRecord): Location? {
         val value = record.getPropertyValue(property) ?: return null
-        return ValueConverters.convertObject(value, Location::class.java)
+        return ValueConverters.convertToObject(value, Location::class.java)
+    }
+
+    override fun convertAndWrite(value: Any?, property: BitablePersistentProperty, record: AppTableRecord) {
+        record.fields[property.getBitfieldName()] = value
     }
 
 }

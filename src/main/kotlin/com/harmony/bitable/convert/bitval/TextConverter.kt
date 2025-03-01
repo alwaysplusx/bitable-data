@@ -11,7 +11,7 @@ import com.lark.oapi.service.bitable.v1.model.AppTableRecord
  */
 class TextConverter : BitvalConverter {
 
-    override fun canRead(property: BitablePersistentProperty) =
+    override fun canHandle(property: BitablePersistentProperty) =
         property.getBitfieldType() == BitfieldType.TEXT && CharSequence::class.java.isAssignableFrom(property.type)
 
     override fun readAndConvert(property: BitablePersistentProperty, record: AppTableRecord): Any? {
@@ -21,6 +21,10 @@ class TextConverter : BitvalConverter {
         } else {
             value as String
         }
+    }
+
+    override fun convertAndWrite(value: Any?, property: BitablePersistentProperty, record: AppTableRecord) {
+        record.fields[property.getBitfieldName()] = value?.toString()
     }
 
 }
