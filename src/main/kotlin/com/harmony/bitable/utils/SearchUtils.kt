@@ -1,9 +1,7 @@
 package com.harmony.bitable.utils
 
 import com.harmony.bitable.BitableAddress
-import com.harmony.bitable.core.SearchBodyBuilder
-import com.harmony.bitable.core.SearchRequest
-import com.harmony.bitable.core.SearchRequestBuilder
+import com.harmony.bitable.core.*
 import com.harmony.bitable.oapi.Pageable
 import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReq
 import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReqBody
@@ -46,6 +44,23 @@ object SearchUtils {
             searchRequest.pageToken = defaultPageable.pageToken
         }
         return searchRequest
+    }
+
+    fun buildUpdateRequest(
+        address: BitableAddress,
+        recordId: String,
+        customizer: (req: UpdateRequestBuilder, body: UpdateBodyBuilder) -> Unit = { _, _ -> }
+    ): UpdateRequest {
+        val requestBuilder = UpdateRequest.newBuilder()
+        val bodyBuilder = UpdateBody.newBuilder()
+        customizer(requestBuilder, bodyBuilder)
+
+        bodyBuilder.recordId(recordId)
+        return requestBuilder
+            .appToken(address.appToken)
+            .tableId(address.tableId)
+            .appTableRecord(bodyBuilder.build())
+            .build()
     }
 
 }

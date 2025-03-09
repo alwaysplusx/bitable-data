@@ -6,6 +6,7 @@ import com.harmony.bitable.oapi.cursor.PageCursor
 import com.lark.oapi.service.bitable.v1.model.AppTableRecord
 import com.lark.oapi.service.bitable.v1.model.BatchGetAppTableRecordReq
 import com.lark.oapi.service.bitable.v1.model.BatchGetAppTableRecordReqBody
+import com.lark.oapi.service.bitable.v1.model.UpdateAppTableRecordReq
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter
 
 /**
@@ -51,6 +52,13 @@ interface BitableRecordApi {
      */
     @RateLimiter(name = "bitable-record-update")
     fun update(address: BitableAddress, record: AppTableRecord, userIdType: String? = null): AppTableRecord
+
+    /**
+     * 更新记录
+     * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.update
+     */
+    @RateLimiter(name = "bitable-record-update")
+    fun update(request: UpdateAppTableRecordReq): AppTableRecord
 
     /**
      * 批量更新记录

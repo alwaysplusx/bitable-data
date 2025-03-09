@@ -100,6 +100,11 @@ class BitableRecordApiImpl(client: Client) : BitableRecordApi {
         return appTableRecordClient.update(request).ensureData().record
     }
 
+    override fun update(request: UpdateAppTableRecordReq): AppTableRecord {
+        requireNotNull(request.recordId) { "recordId not allow null" }
+        return appTableRecordClient.update(request).ensureData().record
+    }
+
     override fun batchUpdate(
         address: BitableAddress,
         records: List<AppTableRecord>,

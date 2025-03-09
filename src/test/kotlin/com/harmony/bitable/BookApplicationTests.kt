@@ -46,4 +46,20 @@ class BookApplicationTests {
         }.streamOfElements().forEach { println("Book: id=${it.id} name=${it.name}") }
     }
 
+    @Test
+    fun testSearch() {
+        bookRepository.search {
+            where {
+                Book::author `is` "张三"
+            }
+        }.streamOfElements().forEach { println("Book: id=${it.id} name=${it.name}") }
+    }
+
+    @Test
+    fun testUpdate() {
+        bookRepository.updateById("recuEUJx0PgTWH") {
+            set(Book::name, "《Spring Boot 3.0》")
+        }
+    }
+
 }
