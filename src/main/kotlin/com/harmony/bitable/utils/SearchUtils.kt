@@ -49,7 +49,7 @@ object SearchUtils {
     fun buildUpdateRequest(
         address: BitableAddress,
         recordId: String,
-        customizer: (req: UpdateRequestBuilder, body: UpdateBodyBuilder) -> Unit = { _, _ -> }
+        customizer: (req: UpdateRequestBuilder, body: UpdateBodyBuilder) -> Unit
     ): UpdateRequest {
         val requestBuilder = UpdateRequest.newBuilder()
         val bodyBuilder = UpdateBody.newBuilder()

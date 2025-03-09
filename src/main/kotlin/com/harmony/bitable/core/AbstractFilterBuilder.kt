@@ -1,8 +1,5 @@
-package com.harmony.bitable.dsl
+package com.harmony.bitable.core
 
-import com.harmony.bitable.core.SearchBodyBuilder
-import com.harmony.bitable.core.SearchRequestBuilder
-import com.harmony.bitable.dsl.builder.ConditionBuilder
 import com.harmony.bitable.mapping.BitablePersistentEntity
 import com.lark.oapi.service.bitable.v1.model.FilterInfo
 import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReq
@@ -26,7 +23,7 @@ abstract class AbstractFilterBuilder<T : Any>(rootType: Class<T>) {
     protected val sorts = mutableListOf<Sort>()
     protected val columns = mutableListOf<NameInformation>()
 
-    abstract fun build(persistentEntity: BitablePersistentEntity<T>): SearchAppTableRecordReq
+    internal abstract fun build(persistentEntity: BitablePersistentEntity<T>): SearchAppTableRecordReq
 
     fun select(vararg columns: KFunction1<T, *>) {
         columns.mapTo(this.columns) { NameInformation.of(it) }

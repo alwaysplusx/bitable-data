@@ -1,10 +1,6 @@
 package com.harmony.bitable.core
 
 import com.harmony.bitable.convert.BitableConverter
-import com.harmony.bitable.dsl.CountFilterBuilder
-import com.harmony.bitable.dsl.SearchFilterBuilder
-import com.harmony.bitable.dsl.SingleResultFilterBuilder
-import com.harmony.bitable.dsl.UpdateBuilder
 import com.harmony.bitable.mapping.BitableMappingContext
 import com.harmony.bitable.mapping.BitablePersistentEntity
 import com.harmony.bitable.oapi.BitableRecordApi
@@ -68,10 +64,10 @@ class BitableTemplate(
         bitableRecordApi.update(updateRequest)
     }
 
-    override fun <T : Any> updateById(recordId: String, domainType: Class<T>, block: UpdateBuilder<T>.() -> Unit) {
+    override fun <T : Any> updateById(recordId: String, domainType: Class<T>, block: UpdateDslBuilder<T>.() -> Unit) {
         val persistentEntity = getPersistentEntity(domainType)
-        val updateBuilder = UpdateBuilder(domainType).apply(block)
-        val updateRequest = updateBuilder.build(recordId, persistentEntity)
+        val builder = UpdateDslBuilder<T>().apply(block)
+        val updateRequest = builder.build(recordId, persistentEntity)
         // override body fields
         updateRequest.appTableRecord.apply {
             val bitfieldValueMap = this.bitfieldValueMap(domainType)

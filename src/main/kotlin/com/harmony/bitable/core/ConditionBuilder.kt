@@ -1,6 +1,5 @@
-package com.harmony.bitable.dsl.builder
+package com.harmony.bitable.core
 
-import com.harmony.bitable.dsl.Conjunction
 import com.harmony.bitable.mapping.BitablePersistentEntity
 import com.lark.oapi.service.bitable.v1.model.FilterInfo
 import org.springframework.util.ObjectUtils
@@ -32,7 +31,7 @@ open class ConditionBuilder<T>(
         subConditions.add(subBuilder)
     }
 
-    fun buildSearchFilter(persistentEntity: BitablePersistentEntity<T>): FilterInfo {
+    internal fun buildSearchFilter(persistentEntity: BitablePersistentEntity<T>): FilterInfo {
         val builder = FilterInfo.newBuilder()
             .conjunction(conjunction.value)
             .conditions(buildSearchConditions(persistentEntity).toTypedArray())

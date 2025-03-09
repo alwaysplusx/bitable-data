@@ -1,9 +1,5 @@
 package com.harmony.bitable.core
 
-import com.harmony.bitable.dsl.CountFilterBuilder
-import com.harmony.bitable.dsl.SearchFilterBuilder
-import com.harmony.bitable.dsl.SingleResultFilterBuilder
-import com.harmony.bitable.dsl.UpdateBuilder
 import com.harmony.bitable.oapi.Pageable
 import com.harmony.bitable.oapi.cursor.PageCursor
 import com.harmony.bitable.oapi.cursor.firstElementOrNull
@@ -27,7 +23,7 @@ interface BitableOperations {
         updateCustomizer: (req: UpdateRequestBuilder, body: UpdateBodyBuilder) -> Unit = { _, _ -> }
     )
 
-    fun <T : Any> updateById(recordId: String, domainType: Class<T>, block: UpdateBuilder<T>.() -> Unit)
+    fun <T : Any> updateById(recordId: String, domainType: Class<T>, block: UpdateDslBuilder<T>.() -> Unit)
 
     fun <T : Any> deleteAll(domainType: Class<T>)
 

@@ -9,9 +9,9 @@ interface BitableRepository<T : Any> : CrudRepository<T, String> {
 
     fun <S : T> update(entity: S): S
 
-    fun updateById(id: String, fields: Map<String, Any?>)
+    fun updateById(id: String, builderCustomizer: UpdateBuilderCustomizer<T>)
 
-    fun updateById(id: String, updateCustomizer: UpdateCustomizer<T>)
+    fun updateByIdWithCustomizer(id: String, updateCustomizer: UpdateCustomizer<T>)
 
     fun getOneById(id: String): T
 

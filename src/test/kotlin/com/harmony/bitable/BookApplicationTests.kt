@@ -1,5 +1,7 @@
 package com.harmony.bitable
 
+import com.harmony.bitable.core.UpdateBuilder
+import com.harmony.bitable.repository.UpdateBuilderCustomizer
 import com.lark.oapi.service.bitable.v1.enums.SearchAppTableRecordUserIdTypeEnum
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -59,7 +61,16 @@ class BookApplicationTests {
     fun testUpdate() {
         bookRepository.updateById("recuEUJx0PgTWH") {
             set(Book::name, "《Spring Boot 3.0》")
+            withCustomizer { req, body ->
+
+            }
         }
+
+        bookRepository.updateById("", object : UpdateBuilderCustomizer<Book> {
+            override fun customize(setter: UpdateBuilder<Book>) {
+            }
+
+        })
     }
 
 }

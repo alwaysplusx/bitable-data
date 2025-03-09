@@ -1,6 +1,5 @@
-package com.harmony.bitable.dsl.builder
+package com.harmony.bitable.core
 
-import com.harmony.bitable.dsl.*
 import com.harmony.bitable.mapping.BitablePersistentEntity
 import com.lark.oapi.core.utils.Jsons
 import com.lark.oapi.service.bitable.v1.enums.ConditionOperatorEnum
@@ -113,7 +112,7 @@ abstract class AbstractConditionBuilder<T>(protected val rootType: Class<T>) {
         return condition
     }
 
-    protected fun buildSearchConditions(persistentEntity: BitablePersistentEntity<*>): List<SearchCondition> {
+    internal fun buildSearchConditions(persistentEntity: BitablePersistentEntity<*>): List<SearchCondition> {
         return allConditions.map {
             val persistentProperty = persistentEntity.getFieldByName(it.name)
             SearchCondition.newBuilder()

@@ -1,10 +1,10 @@
 package com.harmony.bitable.repository.support
 
 import com.harmony.bitable.core.BitableOperations
-import com.harmony.bitable.dsl.CountFilterBuilder
-import com.harmony.bitable.dsl.SearchFilterBuilder
-import com.harmony.bitable.dsl.SingleResultFilterBuilder
-import com.harmony.bitable.dsl.UpdateBuilder
+import com.harmony.bitable.core.CountFilterBuilder
+import com.harmony.bitable.core.SearchFilterBuilder
+import com.harmony.bitable.core.SingleResultFilterBuilder
+import com.harmony.bitable.core.UpdateDslBuilder
 import com.harmony.bitable.oapi.cursor.PageCursor
 import com.harmony.bitable.repository.BitableDslRepository
 import org.springframework.dao.IncorrectResultSizeDataAccessException
@@ -35,7 +35,7 @@ class SimpleBitableDslRepository<T : Any>(
         return bitableOperations.scan(entityInformation.javaType, block)
     }
 
-    override fun updateById(id: String, block: UpdateBuilder<T>.() -> Unit) {
+    override fun updateById(id: String, block: UpdateDslBuilder<T>.() -> Unit) {
         bitableOperations.updateById(id, entityInformation.javaType, block)
     }
 

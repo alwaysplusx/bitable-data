@@ -1,9 +1,5 @@
-package com.harmony.bitable.dsl
+package com.harmony.bitable.core
 
-import com.harmony.bitable.core.SearchBodyBuilder
-import com.harmony.bitable.core.SearchRequest
-import com.harmony.bitable.core.SearchRequestBuilder
-import com.harmony.bitable.dsl.builder.ConditionBuilder
 import com.harmony.bitable.mapping.BitablePersistentEntity
 import com.harmony.bitable.utils.SearchUtils
 
@@ -15,7 +11,7 @@ class CountFilterBuilder<T>(
     private var viewId: String? = null
     private var customizer: (req: SearchRequestBuilder, body: SearchBodyBuilder) -> Unit = { _, _ -> }
 
-    fun build(persistentEntity: BitablePersistentEntity<T>): SearchRequest {
+    internal fun build(persistentEntity: BitablePersistentEntity<T>): SearchRequest {
         val address = persistentEntity.getBitableAddress()
         return SearchUtils.buildSearchRequest(address) { req, body ->
             customizer(req, body)

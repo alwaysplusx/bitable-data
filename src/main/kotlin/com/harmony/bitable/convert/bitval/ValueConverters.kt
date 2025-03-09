@@ -1,7 +1,9 @@
 package com.harmony.bitable.convert.bitval
 
 import com.google.gson.reflect.TypeToken
+import com.harmony.bitable.core.Option
 import com.lark.oapi.core.utils.Jsons
+import org.springframework.data.util.TypeInformation
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -58,6 +60,20 @@ object ValueConverters {
                 throw IllegalArgumentException("unsupported value: $value")
             }
         }
+    }
+
+    /**
+     * string to option or string
+     */
+    fun convertToOption(value: Any?, type: Class<*>): Option? {
+        if (value == null) {
+            return null
+        }
+        return type.enumConstants.map { it as Option }.firstOrNull { it.getValue() == value }
+    }
+
+    internal fun isOptionEnum(typeInformation: TypeInformation<*>): Boolean {
+        return typeInformation.isSubTypeOf(Option::class.java) && typeInformation.type.isEnum
     }
 
 }

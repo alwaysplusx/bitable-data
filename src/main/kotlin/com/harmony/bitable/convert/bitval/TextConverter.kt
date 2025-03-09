@@ -3,7 +3,7 @@ package com.harmony.bitable.convert.bitval
 import com.harmony.bitable.BitfieldType
 import com.harmony.bitable.convert.BitvalConverter
 import com.harmony.bitable.mapping.BitablePersistentProperty
-import com.harmony.bitable.oapi.getFieldValue
+import com.harmony.bitable.oapi.getPropertyValue
 import com.lark.oapi.service.bitable.v1.model.AppTableRecord
 
 /**
@@ -15,7 +15,7 @@ class TextConverter : BitvalConverter {
         property.getBitfieldType() == BitfieldType.TEXT && CharSequence::class.java.isAssignableFrom(property.type)
 
     override fun readAndConvert(property: BitablePersistentProperty, record: AppTableRecord): Any? {
-        val value = record.getFieldValue(property.getBitfieldName()) ?: return null
+        val value = record.getPropertyValue(property) ?: return null
         return if (value is List<*>) {
             (value[0] as Map<String, String>)["text"]
         } else {

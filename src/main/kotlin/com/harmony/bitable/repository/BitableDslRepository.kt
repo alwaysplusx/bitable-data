@@ -1,9 +1,9 @@
 package com.harmony.bitable.repository
 
-import com.harmony.bitable.dsl.CountFilterBuilder
-import com.harmony.bitable.dsl.SearchFilterBuilder
-import com.harmony.bitable.dsl.SingleResultFilterBuilder
-import com.harmony.bitable.dsl.UpdateBuilder
+import com.harmony.bitable.core.CountFilterBuilder
+import com.harmony.bitable.core.SearchFilterBuilder
+import com.harmony.bitable.core.SingleResultFilterBuilder
+import com.harmony.bitable.core.UpdateDslBuilder
 import com.harmony.bitable.oapi.cursor.PageCursor
 import org.springframework.data.repository.NoRepositoryBean
 
@@ -13,7 +13,7 @@ interface BitableDslRepository<T : Any> : BitableRepository<T> {
     /**
      * update by id
      */
-    fun updateById(id: String, block: UpdateBuilder<T>.() -> Unit)
+    fun updateById(id: String, block: UpdateDslBuilder<T>.() -> Unit)
 
     /**
      * required unique result

@@ -1,33 +1,26 @@
-package com.harmony.bitable.dsl
+package com.harmony.bitable.core
 
-import com.harmony.bitable.core.UpdateRequest
 import com.harmony.bitable.mapping.BitablePersistentEntity
 import com.harmony.bitable.repository.UpdateCustomizer
 import com.harmony.bitable.utils.SearchUtils
 import com.lark.oapi.service.bitable.v1.model.Person
 import java.time.LocalDateTime
 import java.time.ZoneId
-import kotlin.reflect.KFunction1
-import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.KCallable
 
 /**
  * @author wuxin
  */
-class UpdateBuilder<T>(private val rootType: Class<T>) {
+open class UpdateBuilder<T>() {
 
-    private val nameValueMap: MutableMap<NameInformation, Any?> = mutableMapOf()
-    private var updateBy: Person? = null
-    private var updateTime: Long? = null
+    protected val nameValueMap: MutableMap<NameInformation, Any?> = mutableMapOf()
+    protected var updateBy: Person? = null
+    protected var updateTime: Long? = null
 
-    private var customizer: UpdateCustomizer<T>? = null
+    protected var customizer: UpdateCustomizer<T>? = null
 
-    fun <R> set(field: KFunction1<T, R>, value: Any?): UpdateBuilder<T> {
-        nameValueMap[NameInformation.of(field)] = value
-        return this
-    }
-
-    fun <R> set(field: KMutableProperty1<T, R>, value: Any?): UpdateBuilder<T> {
-        nameValueMap[NameInformation.of(field)] = value
+    fun <R> set(field: NameFunction<T, R>, value: Any?): UpdateBuilder<T> {
+        nameValueMap[NameInformation.of(field as KCallable<*>)] = value
         return this
     }
 
@@ -42,7 +35,7 @@ class UpdateBuilder<T>(private val rootType: Class<T>) {
         return this
     }
 
-    fun build(recordId: String, persistentEntity: BitablePersistentEntity<*>): UpdateRequest {
+    internal fun build(recordId: String, persistentEntity: BitablePersistentEntity<*>): UpdateRequest {
         val address = persistentEntity.getBitableAddress()
         val fieldValueMap = buildFieldValueMap(persistentEntity)
         return SearchUtils.buildUpdateRequest(address, recordId) { req, body ->

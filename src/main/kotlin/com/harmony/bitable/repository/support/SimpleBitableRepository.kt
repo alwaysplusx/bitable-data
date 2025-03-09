@@ -4,6 +4,7 @@ import com.harmony.bitable.core.BitableOperations
 import com.harmony.bitable.oapi.cursor.PageCursor
 import com.harmony.bitable.repository.BitableRepository
 import com.harmony.bitable.repository.FilterCustomizer
+import com.harmony.bitable.repository.UpdateBuilderCustomizer
 import com.harmony.bitable.repository.UpdateCustomizer
 import org.springframework.dao.IncorrectResultSizeDataAccessException
 import java.util.*
@@ -15,13 +16,11 @@ open class SimpleBitableRepository<T : Any>(
 
     override fun <S : T> update(entity: S) = bitableOperations.update(entity)
 
-    override fun updateById(id: String, fields: Map<String, Any?>) {
-        bitableOperations.updateById(id, entityInformation.javaType) { _, body ->
-            body.fields(fields)
-        }
+    override fun updateById(id: String, builderCustomizer: UpdateBuilderCustomizer<T>) {
+        bitableOperations.updateById(id, entityInformation.javaType, builderCustomizer::customize)
     }
 
-    override fun updateById(id: String, updateCustomizer: UpdateCustomizer<T>) {
+    override fun updateByIdWithCustomizer(id: String, updateCustomizer: UpdateCustomizer<T>) {
         bitableOperations.updateById(id, entityInformation.javaType, updateCustomizer::customize)
     }
 
