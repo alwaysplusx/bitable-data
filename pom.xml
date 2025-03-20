@@ -62,12 +62,6 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.querydsl</groupId>
-            <artifactId>querydsl-kotlin</artifactId>
-            <version>5.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
             <scope>provided</scope>

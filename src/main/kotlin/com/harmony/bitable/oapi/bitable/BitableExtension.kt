@@ -36,11 +36,6 @@ import com.lark.oapi.service.bitable.v1.model.ListAppTableViewRespBody
 import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordReq
 import com.lark.oapi.service.bitable.v1.model.SearchAppTableRecordRespBody
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
-private val log: Logger = LoggerFactory.getLogger("lark.bitable-data")
-
 fun com.lark.oapi.service.bitable.v1.resource.AppDashboard.listCursor(
     req: ListAppDashboardReq,
     options: RequestOptions = RequestOptions(),
@@ -48,7 +43,6 @@ fun com.lark.oapi.service.bitable.v1.resource.AppDashboard.listCursor(
     return scan(req.pageSize, req.pageToken) { pageable ->
         req.pageToken = pageable.pageToken
         req.pageSize = pageable.pageSize
-        log.info("Start AppDashboard.list, request content: {}", Jsons.DEFAULT.toJson(req))
         this.list(req, options).ensurePage { it.toPageSlice() }
     }
 }
@@ -60,7 +54,6 @@ fun com.lark.oapi.service.bitable.v1.resource.AppRole.listCursor(
     return scan(req.pageSize, req.pageToken) { pageable ->
         req.pageToken = pageable.pageToken
         req.pageSize = pageable.pageSize
-        log.info("Start AppRole.list, request content: {}", Jsons.DEFAULT.toJson(req))
         this.list(req, options).ensurePage { it.toPageSlice() }
     }
 }
@@ -72,7 +65,6 @@ fun com.lark.oapi.service.bitable.v1.resource.AppRoleMember.listCursor(
     return scan(req.pageSize, req.pageToken) { pageable ->
         req.pageToken = pageable.pageToken
         req.pageSize = pageable.pageSize
-        log.info("Start AppRoleMember.list, request content: {}", Jsons.DEFAULT.toJson(req))
         this.list(req, options).ensurePage { it.toPageSlice() }
     }
 }
@@ -84,7 +76,6 @@ fun com.lark.oapi.service.bitable.v1.resource.AppTable.listCursor(
     return scan(req.pageSize, req.pageToken) { pageable ->
         req.pageToken = pageable.pageToken
         req.pageSize = pageable.pageSize
-        log.info("Start AppTable.list, request content: {}", Jsons.DEFAULT.toJson(req))
         this.list(req, options).ensurePage { it.toPageSlice() }
     }
 }
@@ -96,7 +87,6 @@ fun com.lark.oapi.service.bitable.v1.resource.AppTableField.listCursor(
     return scan(req.pageSize, req.pageToken) { pageable ->
         req.pageToken = pageable.pageToken
         req.pageSize = pageable.pageSize
-        log.info("Start AppTableField.list, request content: {}", Jsons.DEFAULT.toJson(req))
         this.list(req, options).ensurePage { it.toPageSlice() }
     }
 }
@@ -108,7 +98,6 @@ fun com.lark.oapi.service.bitable.v1.resource.AppTableFormField.listCursor(
     return scan(req.pageSize, req.pageToken) { pageable ->
         req.pageToken = pageable.pageToken
         req.pageSize = pageable.pageSize
-        log.info("Start AppTableFormField.list, request content: {}", Jsons.DEFAULT.toJson(req))
         this.list(req, options).ensurePage { it.toPageSlice() }
     }
 }
@@ -120,7 +109,6 @@ fun com.lark.oapi.service.bitable.v1.resource.AppTableRecord.listCursor(
     return scan(req.pageSize, req.pageToken) { pageable ->
         req.pageToken = pageable.pageToken
         req.pageSize = pageable.pageSize
-        log.info("Start AppTableRecord.list, request content: {}", Jsons.DEFAULT.toJson(req))
         this.list(req, options).ensurePage { it.toPageSlice() }
     }
 }
@@ -132,7 +120,6 @@ fun com.lark.oapi.service.bitable.v1.resource.AppTableRecord.searchCursor(
     return scan(req.pageSize, req.pageToken) { pageable ->
         req.pageToken = pageable.pageToken
         req.pageSize = pageable.pageSize
-        log.info("Start AppTableRecord.search, request content: {}", Jsons.DEFAULT.toJson(req))
         this.search(req, options).ensurePage { it.toPageSlice() }
     }
 }
@@ -144,7 +131,6 @@ fun com.lark.oapi.service.bitable.v1.resource.AppTableView.listCursor(
     return scan(req.pageSize, req.pageToken) { pageable ->
         req.pageToken = pageable.pageToken
         req.pageSize = pageable.pageSize
-        log.info("Start AppTableView.list, request content: {}", Jsons.DEFAULT.toJson(req))
         this.list(req, options).ensurePage { it.toPageSlice() }
     }
 }

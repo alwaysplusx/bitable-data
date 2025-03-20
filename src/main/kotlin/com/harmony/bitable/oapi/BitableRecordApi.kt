@@ -7,7 +7,6 @@ import com.lark.oapi.service.bitable.v1.model.AppTableRecord
 import com.lark.oapi.service.bitable.v1.model.BatchGetAppTableRecordReq
 import com.lark.oapi.service.bitable.v1.model.BatchGetAppTableRecordReqBody
 import com.lark.oapi.service.bitable.v1.model.UpdateAppTableRecordReq
-import io.github.resilience4j.ratelimiter.annotation.RateLimiter
 
 /**
  * @author wuxin
@@ -18,14 +17,12 @@ interface BitableRecordApi {
      * 创建记录
      * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.create
      */
-    @RateLimiter(name = "bitable-record-create")
     fun create(address: BitableAddress, record: AppTableRecord, userIdType: String? = null): AppTableRecord
 
     /**
      * 批量创建记录
      * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.batchCreate
      */
-    @RateLimiter(name = "bitable-record-batch-create")
     fun batchCreate(
         address: BitableAddress,
         records: List<AppTableRecord>,
@@ -36,35 +33,30 @@ interface BitableRecordApi {
      * 删除记录
      * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.delete
      */
-    @RateLimiter(name = "bitable-record-delete")
     fun delete(address: BitableAddress, recordId: String): Boolean
 
     /**
      * 批量删除记录
      * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.batchDelete
      */
-    @RateLimiter(name = "bitable-record-batch-delete")
     fun batchDelete(address: BitableAddress, recordIds: List<String>): Map<String, Boolean>
 
     /**
      * 更新记录
      * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.update
      */
-    @RateLimiter(name = "bitable-record-update")
     fun update(address: BitableAddress, record: AppTableRecord, userIdType: String? = null): AppTableRecord
 
     /**
      * 更新记录
      * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.update
      */
-    @RateLimiter(name = "bitable-record-update")
     fun update(request: UpdateAppTableRecordReq): AppTableRecord
 
     /**
      * 批量更新记录
      * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.batchUpdate
      */
-    @RateLimiter(name = "bitable-record-batch-update")
     fun batchUpdate(
         address: BitableAddress,
         records: List<AppTableRecord>,
@@ -75,7 +67,6 @@ interface BitableRecordApi {
      * 获取记录
      * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.get
      */
-    @RateLimiter(name = "bitable-record-batch-get")
     fun get(address: BitableAddress, recordId: String, userIdType: String? = null): AppTableRecord? =
         batchGet(address, listOf(recordId), userIdType).firstOrNull()
 
@@ -83,7 +74,6 @@ interface BitableRecordApi {
      * 批量获取记录
      * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.batchGet
      */
-    @RateLimiter(name = "bitable-record-batch-get")
     fun batchGet(address: BitableAddress, recordIds: List<String>, userIdType: String? = null): List<AppTableRecord> {
         val body = BatchGetAppTableRecordReqBody
             .newBuilder()
@@ -102,21 +92,17 @@ interface BitableRecordApi {
      * 批量获取记录
      * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.batchGet
      */
-    @RateLimiter(name = "bitable-record-batch-get")
     fun batchGet(request: BatchGetAppTableRecordReq): List<AppTableRecord>
 
     /**
-     * FIXME cursor search with rate limiter
      * 搜索记录
      * @see com.lark.oapi.service.bitable.v1.resource.AppTableRecord.search
      */
-    @RateLimiter(name = "bitable-record-search")
     fun search(request: SearchRequest): PageCursor<AppTableRecord>
 
     /**
      * 统计数据量
      */
-    @RateLimiter(name = "bitable-record-search")
     fun count(request: SearchRequest): Int
 
 }

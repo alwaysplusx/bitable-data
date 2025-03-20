@@ -19,7 +19,8 @@ data class Bitable(
     }
 
     fun getRequiredField(property: BitablePersistentProperty): AppTableFieldForList {
-        return fieldCache[name] ?: throw IllegalArgumentException("$name field not found in table ${this.name}")
+        return fieldCache[property.getBitfieldName()]
+            ?: throw IllegalArgumentException("${property.getBitfieldName()} field not found in table ${this.name}")
     }
 
 }

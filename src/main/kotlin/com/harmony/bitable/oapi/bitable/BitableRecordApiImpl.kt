@@ -5,16 +5,14 @@ import com.harmony.bitable.core.SearchRequest
 import com.harmony.bitable.oapi.BitableRecordApi
 import com.harmony.bitable.oapi.cursor.PageCursor
 import com.harmony.bitable.oapi.ensureData
-import com.lark.oapi.Client
 import com.lark.oapi.service.bitable.v1.model.*
 
 /**
  * 多维表格行数据管理(增删改查)
  * @author wuxin
  */
-class BitableRecordApiImpl(client: Client) : BitableRecordApi {
-
-    private val appTableRecordClient = client.bitable().appTableRecord()
+class BitableRecordApiImpl(private val appTableRecordClient: com.lark.oapi.service.bitable.v1.resource.AppTableRecord) :
+    BitableRecordApi {
 
     /**
      * 插入飞书表格行数据

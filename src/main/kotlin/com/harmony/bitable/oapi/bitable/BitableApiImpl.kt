@@ -5,19 +5,20 @@ import com.harmony.bitable.BitableAddress
 import com.harmony.bitable.oapi.BitableApi
 import com.harmony.bitable.oapi.cursor.PageCursor
 import com.harmony.bitable.oapi.cursor.toElementList
-import com.lark.oapi.Client
 import com.lark.oapi.service.bitable.v1.model.AppTable
 import com.lark.oapi.service.bitable.v1.model.AppTableFieldForList
 import com.lark.oapi.service.bitable.v1.model.ListAppTableFieldReq
 import com.lark.oapi.service.bitable.v1.model.ListAppTableReq
+import com.lark.oapi.service.bitable.v1.resource.AppTableField
 
 /**
  * 飞书多为表格的元数据相关接口操作
  */
-class BitableApiImpl(client: Client, private val pageSize: Int = 20) : BitableApi {
-
-    private val appTableClient = client.bitable().appTable()
-    private val appTableFieldClient = client.bitable().appTableField()
+class BitableApiImpl(
+    private val appTableClient: com.lark.oapi.service.bitable.v1.resource.AppTable,
+    private val appTableFieldClient: AppTableField,
+    private val pageSize: Int = 20
+) : BitableApi {
 
     /**
      * 从 [appToken](https://open.feishu.cn/document/server-docs/docs/bitable-v1/notification) 下获取与入参名称相同的多维表格(多维表格中表格名唯一)

@@ -7,14 +7,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
-@SpringBootTest(
-    properties = [
-        "debug=true",
-        "lark.client.app-id=xxx",
-        "lark.client.app-secret=xxx",
-        "bitable.app-token=xxx",
-    ]
-)
+@SpringBootTest
 class BookApplicationTests {
 
     @Autowired

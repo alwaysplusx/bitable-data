@@ -27,8 +27,8 @@ object SearchUtils {
         defaultPageable: Pageable = Pageable(),
         customizer: (req: SearchRequestBuilder, body: SearchBodyBuilder) -> Unit = { _, _ -> }
     ): SearchRequest {
-        val requestBuilder = SearchAppTableRecordReq.newBuilder()
-        val bodyBuilder = SearchAppTableRecordReqBody.newBuilder()
+        val requestBuilder = SearchRequest.newBuilder()
+        val bodyBuilder = SearchBody.newBuilder()
         customizer(requestBuilder, bodyBuilder)
 
         val searchRequest = requestBuilder
