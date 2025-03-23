@@ -23,6 +23,7 @@ class DefaultBitfieldConverter(private val bitvalConverters: List<BitvalConverte
             FormulaConverter(),
             GroupConverter(),
             LocationConverter(),
+            LookupConverter(),
             MultiSelectConverter(),
             NumberConverter(),
             PersonConverter(),

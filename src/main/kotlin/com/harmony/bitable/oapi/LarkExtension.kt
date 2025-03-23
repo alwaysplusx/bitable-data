@@ -28,4 +28,6 @@ fun <T, R> BaseResponse<T>.ensurePage(converter: (T) -> PageSlice<R>): PageSlice
 
 fun AppTableRecord.getPropertyValue(property: BitablePersistentProperty): Any? = this.fields[property.getBitfieldName()]
 
-fun AppTableFieldForList.getBitableType(): BitfieldType = BitfieldType.entries.first { it.value == this.type }
+fun AppTableFieldForList.getBitableType(): BitfieldType {
+    return BitfieldType.entries.firstOrNull { it.value == this.type } ?: BitfieldType.AUTO
+}
